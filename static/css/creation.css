@@ -1,0 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+}
+
+body {
+    --_mesh-gradient-blur: 0px;
+    --_mesh-gradient-blend-mode: normal;
+    
+    background: radial-gradient(at 1.8640350877192982% 93.14285714285714%, #bff2bb 0px, transparent 50%), radial-gradient(at 97.25877192982456% 5.333333333333334%, #dbfffc 0px, transparent 50%), radial-gradient(at 87.82894736842105% 91.42857142857143%, #e1a3da 0px, transparent 50%), radial-gradient(at 5% 2%, #ffe8c7 0px, transparent 50%) #ffffff;
+    mix-blend-mode: var(--_mesh-gradient-blend-mode);
+    filter: blur(var(--_mesh-gradient-blur));
+
+    background-repeat: no-repeat;
+
+    background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%;
+    animation: animate-background-rotation 10s infinite linear;
+}
+
+@keyframes animate-background-rotation {
+    0% {
+        background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%;
+    }
+    100% {
+        background-position: 200% 200%, -100% 200%, -100% -100%, 200% -100%;
+    }
+}
+
+main {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 700px;
+    max-height: 90%;
+    overflow-y: auto;
+    padding: 20px;
+    background: #ffffffaa;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    transition: all 0.5s ease;
+}
+
+main.to_enter {
+    transform: translate(200%, -50%) scale(1.1);
+    opacity: 0;
+}
+
+main.to_go {
+    transform: translate(-200%, -50%) scale(0.9);
+    opacity: 0;
+}
+
+.error-message {
+    color: #ff0000;
+    font-size: 0.9em;
+    animation: shake 0.5s;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+input[type="file"] + label {
+    display: block;
+    width: 100%;
+    height: 150px;
+    position: relative;
+    border: 2px dashed #e7b8e3;
+    background: #efd3ed45;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: 0.3s;
+}
+
+input[type="file"] + label > div {
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+input[type="file"] + label:hover {
+    background: #e7b8e3;
+}
+
+input[type="file"] + label div.upload_infos {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 20px   ;
+}
+
+input[type="file"] + label div.upload_infos .doc_preview {
+    width: 90px;
+    height: 90px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+input[type="file"] + label div.upload_infos .doc_preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+input[type="file"] + label div.upload_infos .doc_infos {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+input[type="file"] + label div.upload_infos .doc_infos .doc_name {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+input[type="file"] + label div.upload_infos .doc_infos .doc_date {
+    font-size: 0.8em;
+    color: #666;
+}
+
+input[type="submit"], #next_button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #e7b8e3;
+    border: none;
+    border-radius: 5px;
+    color: #333;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 25px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+input[type="submit"]:hover, #next_button:hover {
+    background: #d8a0d0;
+}
+
+input[type="submit"]:disabled, #next_button:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+input[type="submit"]:disabled:hover, #next_button:disabled:hover {
+    background: #f0f0f0;
+}
+
+.selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+select {
+    padding: 10px;
+    border: 2px solid #e7b8e3;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+select:hover {
+    border-color: #d8a0d0;
+}
+
+input {
+    padding: 10px;
+    border: 2px solid #e7b8e3;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 600;
+    color: #333;
+    font-weight: normal;
+    cursor: text;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+}
+
+input:hover {
+    border-color: #d8a0d0;
+}
+
+input:focus {
+    outline: none;
+    border-color: #d8a0d0;
+}
+
+.notions-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.notion-container {
+    display: flex;
+    gap: 10px;
+    padding: 5px 15px 5px 5px;
+    align-items: center;
+    background: linear-gradient(45deg, rgba(231,184,227,1) 0%, rgba(238,226,237,1) 47%, rgba(216,160,208,1) 100%);
+    background-size: 200% 200%;
+    animation: gradient 3s linear infinite, pop 0.3s;
+    width: fit-content; 
+    border-radius: 25px;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.notion-container.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+    75% {
+        transform: translateX(-5px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.notion-container .close-button {
+    width: 25px;
+    height: 25px;
+    padding: 4px;
+    background-color: white;
+    border-radius: 12.5px;
+}
+
+.notion-container .close-button img {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#loader {
+    height: 300px;
+}
+
+.loader {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 15px solid #f0f0f0;
+    border-bottom-color: #e7b8e3;
+    animation: spin 0.75s infinite ease-in-out;
+    position: absolute;
+    top: calc(50% - 60px);
+    left: calc(50% - 60px);
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

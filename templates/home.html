@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizz - Accueil</title>
+    <link rel="stylesheet" href="/static/css/home-style.css">
+</head>
+<body>
+    <main>
+        <div class="main-container">
+            <header>
+                <div class="title">Vos quizz</div>
+                <div class="creation-button">
+                    <a href="/create/1">Créer un quizz</a>
+                </div>
+            </header>
+            {% if data|length == 0 %}
+            <div class="empty-container">
+                <img src="/static/icons/icons8-empty-box-100.png" alt="empty-box">
+                <div class="empty-message">Vous n'avez pas encore de quizz</div>
+            </div>
+            {% endif %}
+            <div class="quizzes-container">
+                {% for quizz in data %}
+                {% if quizz.to_highlight == True %}
+                {% set class_to_add = "pulse" %}
+                {% else %}
+                {% set class_to_add = "" %}
+                {% endif %}
+                <div class="quizz-container {{class_to_add}}" data-id="{{quizz.id}}">
+                    <div class="illustration-container" style="background-color: {{quizz.color}};">
+                        <div class="document-preview">
+                            <img src="{{quizz.preview_path}}" alt="document-preview">    
+                        </div>
+                        <div class="emoji">
+                            {{quizz.emoji}}
+                        ​</div>
+                    </div>
+                    <div class="quizz-title">{{quizz.title}}</div>
+                    <div class="quizz-description">
+                        <div class="quizz-item">
+                            <img src="/static/icons/icons8-test-50.png" alt="attemps">
+                            <div><strong>{{quizz.last_attempt}}</strong>/{{quizz.size}}</div>
+                        </div>
+                        <div class="quizz-item">
+                            <img src="/static/icons/icons8-count-50.png" alt="time">
+                            <div>{{quizz.quizz_amount}}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+    <script src="/static/js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Ignorer le fichier .env
+.env
+
+# Ignorer d'autres fichiers sensibles
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignorer les fichiers de sauvegarde
+/static/user_files/*
+/static/pdf_preview/*
+/static/user_data.json

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizz - {{data.title}}</title>
+    <link rel="stylesheet" href="/static/css/quizz-home-style.css">
+</head>
+<body>
+    <main>
+        <div class="main-container">
+            <header>
+                <div class="title">{{data.emoji}} {{data.title}}</div>
+                <div class="preview_container" id="preview_container" data-url="{{data.pdf_path}}">
+                    <img src="{{data.preview_path}}" alt="preview" id="preview">
+                </div>
+            </header>
+            <p class="quizz_infos">Vous avez {{data.quizz_amount}} quizz </p>            
+            <div class="quizz_main_container">
+                <div class="quizz_container" style="background-color: {{data.color}}">
+                    <div class="quizz_main_infos">
+                        <div class="quizz_title">Quizz</div>
+                        <div class="quizz_attemp_info">Vous avez 1 tentative</div>
+                        <div class="quizz_button_container">
+                            <div class="quizz_button quizz_show_button">
+                                <img src="/static/icons/icons8-arrow-50.png" alt="show-button">
+                            </div>
+                            <div class="quizz_button quizz_start_button">
+                                <img src="/static/icons/icons8-play-64.png" alt="play-button">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quizz_attemps">
+                        <div class="attemp">
+                            <div class="score">20/25</div>
+                            <div class="date">18 septembre à 14h20</div>
+                            <div class="attemp_check_button" data-quizz_id="{{data.id}}" data-attemp_id="">
+                                <img src="/static/icons/icons8-eye-60.png" alt="check-button">
+                                <div>Voir</div>
+                            </div>
+                            
+                        </div>
+                        <div class="attemp">
+                            <div class="score">16</div>
+                            <div class="date">18 septembre à 14h20</div>
+                            <div class="attemp_check_button" data-quizz_id="{{data.id}}" data-attemp_id="">
+                                <img src="/static/icons/icons8-eye-60.png" alt="check-button">
+                                <div>Voir</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="generate-button" id="generate_button" data-id="{{data.id}}">Générer un autre quizz</div>
+            </div>
+        </div>
+    </main>
+    <script src="/static/js/quizz-home.js"></script>
+</body>
+</html>

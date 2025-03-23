@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création d'un quizz</title>
+    <link rel="stylesheet" href="/static/css/creation.css">
+</head>
+<body>
+    <main class="to_enter" id="main">
+        <h1>Type de quizz</h1>
+        <p class="error-message" id="error-message">{{error_mess}}</p>
+        <form action="/create/3" method="POST" id="quizz_form_stp2">
+            <div class="selector">
+                <p>Format de question ?</p>
+                <select name="quizz_type" id="quizz_type" required>
+                    <option value="Questions à choix multiples">Questions à choix multiples</option>
+                    <option value="Questions à choix unique">Questions à choix unique</option>
+                    <option value="Questions mixtes">Questions mixtes</option>
+                </select>
+            </div>
+            <div class="selector">
+                <p>Système de notation ?</p>
+                <select name="quizz_notation" id="quizz_notation" required>
+                    <option value="Points négatifs">Points négatifs</option>
+                    <option value="Notation classique">Notation classique</option>
+                </select>
+            </div>
+            <div class="selector">
+                <p>Nombres de questions</p>
+                <select name="quizz_size" id="quizz_size" required>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+            </div>
+            <hr style="margin-top: 25px;">
+            <p style="margin-top: 25px;">Souhaitez vous spécifier des notions à mettre impérativement dans le quizz ?</p>
+            <div class="notions-container" id="notions-container"></div>
+            <input type="hidden" id="notions" name="notions">
+            <input type="text" placeholder="Ajoutez des notions et appuyez sur entrée" name="quizz_notions" id="quizz_notions">
+            <div id="next_button">Générer</div>
+        </form>
+    </main>
+    <main class="to_enter" id="loader">
+        <div class="loader"></div>
+    </main>
+    <script src="/static/js/creation-step2.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+}
+
+body {
+    --_mesh-gradient-blur: 0px;
+    --_mesh-gradient-blend-mode: normal;
+    
+    background: radial-gradient(at 1.8640350877192982% 93.14285714285714%, #bff2bb 0px, transparent 50%), radial-gradient(at 97.25877192982456% 5.333333333333334%, #dbfffc 0px, transparent 50%), radial-gradient(at 87.82894736842105% 91.42857142857143%, #e1a3da 0px, transparent 50%), radial-gradient(at 5% 2%, #ffe8c7 0px, transparent 50%) #ffffff;
+    mix-blend-mode: var(--_mesh-gradient-blend-mode);
+    filter: blur(var(--_mesh-gradient-blur));
+
+    background-repeat: no-repeat;
+
+    background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%;
+    animation: animate-background-rotation 10s infinite linear;
+}
+
+@keyframes animate-background-rotation {
+    0% {
+        background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%;
+    }
+    100% {
+        background-position: 200% 200%, -100% 200%, -100% -100%, 200% -100%;
+    }
+}
+
+main {
+    height: 100%;
+    background-color: #e9e9e9b8;
+    width: 100%;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 50px 25px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #ccc;
+}
+
+header .title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+header .creation-button {
+    min-width: 100px;
+    padding: 15px 20px;
+    background-color: #e7b8e3;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+header .creation-button a {
+    color: #000;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+header .creation-button:hover {
+    background-color: #d9a1d0;
+}
+
+header .creation-button:hover a {
+    color: #fff;
+}
+
+.quizzes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.quizz-container {
+    border: 2px solid #ccc;
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
+    animation: shimmer 2s infinite;
+    background-color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.quizz-container.pulse {
+    animation: pulse 0.5s 5;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        border-color: #ccc;
+    }
+    50% {
+        border-color: #e0e0e0;
+    }
+    100% {
+        border-color: #ccc;
+    }
+}
+
+.quizz-container .illustration-container {
+    height: 150px;
+    background-color: #f0f0f0;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.quizz-container .illustration-container .document-preview {
+    width: 88px;
+    height:  125px;
+    object-fit: cover;
+    border-radius: 10px;
+    background-color: red;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+}
+
+.quizz-container .illustration-container .document-preview img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.quizz-container .illustration-container .emoji {
+    font-size: 3rem;
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 20px);
+    background-color: #fff;
+    width: 65px;
+    height: 65px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.quizz-container .quizz-title {
+    margin: 15px 5px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.quizz-container .quizz-description {
+    display: flex;
+    justify-content: left;
+}
+
+.quizz-container .quizz-description .quizz-item {
+    display: flex;
+    align-items: center;
+    margin: 10px 5px;
+    gap: 10px;
+}
+
+.quizz-container .quizz-description .quizz-item img {
+    width: 25px;
+}
+
+.quizz-container .quizz-description .quizz-item div {
+    font-size: 0.9rem;
+    color: #666;
+}
