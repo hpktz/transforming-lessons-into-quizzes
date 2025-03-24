@@ -43,6 +43,9 @@
                 {% set class_to_add = "" %}
                 {% endif %}
                 <div class="quizz-container {{class_to_add}}" data-id="{{quizz.id}}">
+                    <div class="delete_container" data-id="{{quizz.id}}">
+                        <img src="/static/icons/icons8-delete-60.png" alt="delete">
+                    </div>
                     <div class="illustration-container" style="background-color: {{quizz.color}};">
                         <div class="document-preview">
                             <img src="{{quizz.preview_path}}" alt="document-preview">    

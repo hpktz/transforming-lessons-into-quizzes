@@ -267,3 +267,38 @@ form .button_main_container .button:hover {
         top: -100px;
     }
 }
+
+.chronometre {
+    margin: 10px 0;
+    padding: 10px 0px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.chronometre .minutes {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    width: 35px;
+    text-align: center;
+}
+
+.chronometre .separator {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.chronometre .seconds {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #666;
+    width: 35px;
+    text-align: center;
+}
+
+.chronometre .milliseconds {
+    display: none;
+}

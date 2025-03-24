@@ -90,6 +90,12 @@
                     </div>
                     {% endfor %}
                 </div>
+                <div class="chronometre" data-start="{{date_start}}">
+                    <div class="minutes" id="minutes">00</div>
+                    <div class="separator">:</div>
+                    <div class="seconds" id="seconds">00</div>
+                    <div class="milliseconds" id="milliseconds">00</div>
+                </div>  
                 <div class="main_end_button" id="main_end_button" data-id="{{id}}" data-next_quest="{{question}}">Terminer le test</div>
             </div>
         </form>

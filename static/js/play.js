@@ -57,3 +57,53 @@ if (main_end_button) {
         form.submit();
     });
 }
+
+// Ajoutez ce code à votre fichier play.js existant
+document.addEventListener('DOMContentLoaded', function() {
+    // Récupération de l'élément chronomètre
+    const chronometreElement = document.querySelector('.chronometre');
+    
+    if (!chronometreElement) return;
+    
+    // Récupération de la date de départ depuis l'attribut data-start
+    const dateStart = chronometreElement.getAttribute('data-start');
+    
+    // Conversion en objet Date JavaScript
+    const startDate = new Date(dateStart);
+    
+    // Vérification de la validité de la date
+    if (isNaN(startDate.getTime())) {
+        console.error('Format de date invalide:', dateStart);
+        return;
+    }
+    
+    // Éléments d'affichage
+    const minutesElement = document.getElementById('minutes');
+    const secondsElement = document.getElementById('seconds');
+    const millisecondsElement = document.getElementById('milliseconds');
+    
+    // Fonction pour mettre à jour le chronomètre
+    function updateChronometre() {
+        // Obtenir l'heure actuelle
+        const currentDate = new Date();
+        
+        // Calculer la différence en millisecondes
+        const elapsedTime = currentDate - startDate;
+        
+        // Convertir en minutes, secondes et millisecondes
+        const minutes = Math.floor(elapsedTime / 60000);
+        const seconds = Math.floor((elapsedTime % 60000) / 1000);
+        const milliseconds = Math.floor((elapsedTime % 1000) / 10); // Centièmes de seconde
+        
+        // Mettre à jour l'affichage avec formatage à deux chiffres
+        minutesElement.textContent = minutes.toString().padStart(2, '0');
+        secondsElement.textContent = seconds.toString().padStart(2, '0');
+        millisecondsElement.textContent = milliseconds.toString().padStart(2, '0');
+        
+        // Continuer indéfiniment
+        requestAnimationFrame(updateChronometre);
+    }
+    
+    // Démarrer le chronomètre
+    updateChronometre();
+});

@@ -55,6 +55,22 @@ def index():
     except Exception as e:
         logging.error(e)
         return render_template('home.html', data=[])
+    
+@app.route('/delete/<int:quizz_id>', methods=['GET'])
+def delete(quizz_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+        
+        del data[str(quizz_id)]
+        
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
+            json.dump(data, file, indent=4)
+        
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
 
 @app.route('/create/1', methods=['GET'])
 def create1():
@@ -408,6 +424,7 @@ def play_quizz(id, quizz_id):
             'color': data[str(id)]['color'],
             'quizz_version_id': quizz_id,
             'expire_date': expire_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'date_start': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'questions': [
                 {
                     'question': q['question'][3:] if q['question'][:3].isdigit() and q['question'][2] == '.' else q['question'],
@@ -468,7 +485,18 @@ def play(game_session_id, question):
             if end:
                 return redirect(url_for('end', game_session_id=game_session_id))
             
-        return render_template('play.html', id=session['game_session']['id'], question=question, color=session['game_session']['color'], question_data=question_data)
+            
+            
+        date_start = datetime.strptime(session['game_session']['date_start'], '%Y-%m-%d %H:%M:%S')
+        
+        print(date_start)
+            
+        return render_template('play.html', 
+                               id=session['game_session']['id'], 
+                               question=question, 
+                               color=session['game_session']['color'], 
+                               date_start=date_start,
+                               question_data=question_data)
     except Exception as e:
         logging.error(e)
         flash('Une erreur est survenue', 'error')

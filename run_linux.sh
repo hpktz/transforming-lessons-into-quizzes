@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Aller dans le dossier du script
 cd "$(dirname "$0")"
 
