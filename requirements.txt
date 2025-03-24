@@ -1,0 +1,4 @@
+Flask
+flask-session
+google-genai
+pdf2image
