@@ -39,9 +39,9 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 3. **Configurez l'API Gemini** :
    
-   Créez un fichier `.env` à la racine du projet avec le contenu suivant :
-   ```
-   GEMINI_API_KEY=votre_clé_api_gemini_ici
+   **Créez un fichier `.env` via la ligne de commande** :
+   ```bash
+   echo GEMINI_API_KEY=votre_clé_api_gemini_ici > .env
    ```
 
 ## ▶️ Démarrage de l'application
