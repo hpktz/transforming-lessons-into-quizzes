@@ -28,6 +28,7 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 1. **Clonez le dépôt** :
    ```bash
+   cd Documents
    git clone https://github.com/[votre-nom]/transforming-lessons-into-quizzes.git
    cd transforming-lessons-into-quizzes
    ```
