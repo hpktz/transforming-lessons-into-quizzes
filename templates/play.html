@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizz - </title>
+    <link rel="stylesheet" href="/static/css/play-style.css">
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <div class="error_message">
+                        <div class="text">{{ message }}</div>
+                        <div class="progress_bar">
+                            <div class="progress"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <main>
+        <form action="" method="POST" id="form">
+            <div class="question_main_container">
+                <div class="question_container" style="background-color: #E8F8F5;">
+                    <div class="question_title">Question {{question + 1}}</div>
+                    <div class="question_content">{{question_data[question].question}}</div>
+                    {% set type_of_quizz = "unique" %}
+                    {% if question_data[question].correct|length > 1 %}
+                    {% set type_of_quizz = "multiple" %}
+                    {% endif %}
+                    <div class="question_instruction">
+                        {% if type_of_quizz == "unique" %}
+                        Veuillez choisir une réponse :
+                        {% else %}
+                        Veuillez choisir une ou plusieurs réponses :
+                        {% endif %}
+                    </div>
+                    <input type="hidden" name="question_id" value="{{question}}">
+                    <input type="hidden" id="end" name="end" value="0">
+                    <div class="question_choices">
+                        {% for choice in question_data[question].answers %}
+                        {% set selected = "" %}
+                        {% if question_data[question].answered %}
+                        {% if (loop.index - 1)|string in question_data[question].selected_answers|string %}
+                        {% set selected = "checked" %}
+                        {% endif %}
+                        {% endif %}
+                        {% if type_of_quizz == "unique" %}
+                        <div class="question_choice">
+                            <input type="radio" name="choice" id="choice{{loop.index}}" value="{{loop.index-1}}" {{selected}}>
+                            <label for="choice{{loop.index}}">{{choice}}</label>
+                        </div>
+                        {% else %}
+                        <div class="question_choice">
+                            <input type="checkbox" name="choice[]" id="choice{{loop.index}}" value="{{loop.index-1}}" {{selected}}>
+                            <label for="choice{{loop.index}}">{{choice}}</label>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="button_main_container">
+                    {% if question != 0 %}
+                    <div class="button previous" id="previous_button" data-id="{{id}}" data-next_quest="{{question-1}}">Précédent</div>
+                    {% endif %}
+                    {% if question != question_data|length - 1 %}
+                    <div class="button next" id="next_button" data-id="{{id}}" data-next_quest="{{question+1}}">Suivant</div>
+                    {% else %}
+                    <div class="button end_test" id="end_button" data-id="{{id}}" data-next_quest="{{question}}">Terminer le test</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="progress_main_container">
+                <div class="title">Progression</div>
+                <div class="progress_container">
+                    {% for quest in question_data %}
+                    {% set selected = "" %}
+                    {% if loop.index == (question + 1) %}
+                    {% set selected = "selected" %}
+                    {% endif %}
+                    {% set active = "" %}
+                    {% if quest.answered == True %}
+                    {% set active = "active" %}
+                    {% endif %}
+                    <div class="progress_item {{selected}} {{active}}" data-id="{{id}}" data-quest="{{loop.index-1}}">
+                        <div class="progress_item_content">{{loop.index}}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="main_end_button" id="main_end_button" data-id="{{id}}" data-next_quest="{{question}}">Terminer le test</div>
+            </div>
+        </form>
+    </main>
+    <script src="/static/js/play.js"></script>
+</body>
+</html>

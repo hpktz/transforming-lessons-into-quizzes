@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="/static/css/home-style.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'error' %}
+                    <div class="error_message">
+                        <div class="text">{{ message }}</div>
+                        <div class="progress_bar">
+                            <div class="progress"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <main>
         <div class="main-container">
             <header>

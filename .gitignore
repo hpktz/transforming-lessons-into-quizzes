@@ -8,6 +8,9 @@
 .env.production.local
 
 # Ignorer les fichiers de sauvegarde
-/static/user_files/*
-/static/pdf_preview/*
+#/static/user_files/*
+#/static/pdf_preview/*
 /static/user_data.json
+
+# Ignorer les fichiers temporaires
+/tmp/*

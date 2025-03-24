@@ -10,6 +10,10 @@
     <main>
         <div class="main-container">
             <header>
+                <div class="return_button" id="return_button">
+                    <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+                    <div class="return_button_text">Retour</div>
+                </div>
                 <div class="title">{{data.emoji}} {{data.title}}</div>
                 <div class="preview_container" id="preview_container" data-url="{{data.pdf_path}}">
                     <img src="{{data.preview_path}}" alt="preview" id="preview">
@@ -17,40 +21,39 @@
             </header>
             <p class="quizz_infos">Vous avez {{data.quizz_amount}} quizz </p>            
             <div class="quizz_main_container">
-                <div class="quizz_container" style="background-color: {{data.color}}">
+                {% for quizz in data.quizzes %}
+                <div class="quizz_container" id="quizz_container_{{quizz.id}}" style="background-color: {{data.color}}">
                     <div class="quizz_main_infos">
-                        <div class="quizz_title">Quizz</div>
-                        <div class="quizz_attemp_info">Vous avez 1 tentative</div>
+                        <div class="quizz_title">Quizz {{loop.index}}</div>
+                        <div class="quizz_attemp_info">Vous avez {{quizz.attempts|length}} tentative</div>
                         <div class="quizz_button_container">
-                            <div class="quizz_button quizz_show_button">
+                            <div class="quizz_button quizz_show_button" data-id="{{data.id}}" data-quizz_id="{{quizz.id}}">
                                 <img src="/static/icons/icons8-arrow-50.png" alt="show-button">
                             </div>
-                            <div class="quizz_button quizz_start_button">
+                            <div class="quizz_button quizz_start_button" data-id="{{data.id}}" data-quizz_id="{{quizz.id}}">
                                 <img src="/static/icons/icons8-play-64.png" alt="play-button">
                             </div>
                         </div>
                     </div>
-                    <div class="quizz_attemps">
+                    <div class="quizz_attempts">
+                        {% if quizz.attempts|length == 0 %}
+                        <div class="no-attempt">Aucune tentative</div>
+                        {% endif %}
+
+                        {% for attempt in quizz.attempts %}
                         <div class="attemp">
-                            <div class="score">20/25</div>
-                            <div class="date">18 septembre à 14h20</div>
-                            <div class="attemp_check_button" data-quizz_id="{{data.id}}" data-attemp_id="">
+                            {% set calculate_score = attempt.score/(attempt.answer|length)*20 %}
+                            <div class="score">{{calculate_score}}</div>
+                            <div class="date">{{attempt.date}}</div>
+                            <div class="attempt_check_button" data-id="{{data.id}}" data-quizz_id="{{quizz.id}}" data-attempt_id="{{attempt.id}}">
                                 <img src="/static/icons/icons8-eye-60.png" alt="check-button">
                                 <div>Voir</div>
                             </div>
-                            
                         </div>
-                        <div class="attemp">
-                            <div class="score">16</div>
-                            <div class="date">18 septembre à 14h20</div>
-                            <div class="attemp_check_button" data-quizz_id="{{data.id}}" data-attemp_id="">
-                                <img src="/static/icons/icons8-eye-60.png" alt="check-button">
-                                <div>Voir</div>
-                            </div>
-                            
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+                {% endfor %}
                 <div class="generate-button" id="generate_button" data-id="{{data.id}}">Générer un autre quizz</div>
             </div>
         </div>

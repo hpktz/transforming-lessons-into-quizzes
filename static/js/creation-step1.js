@@ -1,5 +1,6 @@
 const course_pdf = document.getElementById('course_pdf');
 const cours_pdf_label = document.getElementById('course_pdf_label');
+const return_button = document.getElementById('return_button');
 
 const form = document.getElementById('quizz_form_stp1');
 
@@ -57,4 +58,8 @@ form.addEventListener('submit', function(event) {
     setInterval(function() {
         event.target.submit();
     }, 600);
+});
+
+return_button.addEventListener('click', function() {
+    window.location.href = '/';
 });

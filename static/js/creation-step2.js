@@ -1,5 +1,6 @@
 const quizz_notions = document.getElementById('quizz_notions');
 const quizz_notions_container = document.getElementById('notions-container');
+const return_button = document.getElementById('return_button');
 
 const form = document.getElementById('quizz_form_stp2');
 
@@ -92,6 +93,10 @@ next_button.addEventListener('click', async function() {
         const message = document.getElementById('error-message');
         message.textContent = 'Une erreur est survenue lors de la création du quizz';
     }
+});
+
+return_button.addEventListener('click', function() {
+    window.location.href = '/create/1';
 });
 
 setTimeout(function() {

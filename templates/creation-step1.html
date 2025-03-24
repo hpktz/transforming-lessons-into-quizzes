@@ -8,6 +8,10 @@
 </head>
 <body>
     <main id="main">
+        <div class="return_button" id="return_button">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
         <h1>Contexte du cours</h1>
         <p class="error-message">{{error_mess}}</p>
         <form action="{{ url_for('create2') }}" method="POST" id="quizz_form_stp1" enctype="multipart/form-data">

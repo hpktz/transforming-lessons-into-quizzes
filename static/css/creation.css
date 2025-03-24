@@ -317,3 +317,31 @@ input:focus {
         transform: rotate(360deg);
     }
 }
+
+.return_button {
+    display: flex;
+    align-items: center;
+    width: 120px;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 5px 10px;
+    border-radius: 10px;
+    background-color: #e2e2e2;
+}
+
+.return_button img {
+    width: 25px;
+    height: 25px;
+}
+
+.return_button .return_button_text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.return_button:hover {
+    background-color: #ccc;
+}

@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, render_template, session, url_for, redirect
+from flask import Flask, request, jsonify, render_template, session, url_for, redirect, flash
+from flask_session import Session
 import os
 import random
 import logging
@@ -10,7 +11,7 @@ from google.genai import types
 from pdf2image import convert_from_path
 
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -18,6 +19,9 @@ app = Flask(__name__)
 
 secret_key = os.urandom(24)
 app.secret_key = secret_key
+
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 @app.route('/', methods=['GET'])
 def index():
@@ -255,7 +259,8 @@ def quizz(quizz_id):
             'size': quizz['size'],
             'preview_path': url_for('static', filename=f'pdf_preview/preview_{quizz_id}.jpg'),
             'pdf_path': url_for('static', filename=f'user_files/file_quizz_{quizz_id}.pdf'),
-            'quizz_amount': len(quizz['quizzes'])
+            'quizz_amount': len(quizz['quizzes']),
+            'quizzes': quizz['quizzes']
         }
         
         return render_template('quizz.html', data=data_to_show)
@@ -384,6 +389,196 @@ def generate_quizz(quizz_id):
     except Exception as e:
         logging.error(e)
         return jsonify({'success': False, 'error': str(e)})
+    
+@app.route('/quizz/<int:id>/play/<int:quizz_id>', methods=['GET'])
+def play_quizz(id, quizz_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+        
+        if str(id) not in data or not any(q['id'] == quizz_id for q in data[str(id)]['quizzes']):
+            return redirect(url_for('index'))
+        
+        game_session_id = random.randint(1000000000000000, 9999999999999999)
+        expire_date = datetime.now() + timedelta(hours=2)
+        
+        session['game_session'] = {
+            'id': game_session_id,
+            'quizz_id': id,
+            'color': data[str(id)]['color'],
+            'quizz_version_id': quizz_id,
+            'expire_date': expire_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'questions': [
+                {
+                    'question': q['question'][3:] if q['question'][:3].isdigit() and q['question'][2] == '.' else q['question'],
+                    'answers': q['answers'],
+                    'correct': q['correct'],
+                    'answered': False,
+                    'selected_answers': []
+                } for q in next(q for q in data[str(id)]['quizzes'] if q['id'] == quizz_id)['questions']
+            ]
+        }
+        
+        return redirect(url_for('play', game_session_id=game_session_id, question=0))
+    except Exception as e:
+        logging.error(e)
+        flash('Une erreur est survenue', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/play/<int:game_session_id>/<int:question>', methods=['GET', 'POST'])
+def play(game_session_id, question):
+    try:
+        if 'game_session' not in session or int(session['game_session']['id']) != int(game_session_id):
+            flash('Session invalide', 'error')
+            return redirect(url_for('index'))
+        elif datetime.now() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
+            flash('Session expirée', 'error')
+            return redirect(url_for('index'))
+        elif question < 0 or question >= len(session['game_session']['questions']):
+            flash('Question invalide', 'error')
+            return redirect(url_for('play', game_session_id=game_session_id, question=0))
+        
+        question_data = session['game_session']['questions']
+        
+        if question < 0 or question >= len(question_data):
+            flash('Question invalide', 'error')
+            return redirect(url_for('play', game_session_id=game_session_id, question=0))
+                
+        if request.method == 'POST':
+            question_id = int(request.form['question_id'])
+            
+            if int(request.form['end']) == 0:
+                end = False
+            else:
+                end = True
+                
+            if 'choice' not in request.form:
+                answer = []
+            else:
+                if len(question_data[question_id]['correct']) == 1:
+                    answer = [request.form['choice']]
+                else:
+                    answer = request.form.getlist('choice')
+                
+                question_data[question_id]['answered'] = True
+                question_data[question_id]['selected_answers'] = answer
+        
+            session['game_session']['questions'] = question_data
+            
+            if end:
+                return redirect(url_for('end', game_session_id=game_session_id))
+            
+        return render_template('play.html', id=session['game_session']['id'], question=question, color=session['game_session']['color'], question_data=question_data)
+    except Exception as e:
+        logging.error(e)
+        flash('Une erreur est survenue', 'error')
+        return redirect(url_for('index'))
+    
+@app.route('/play/<int:game_session_id>/end', methods=['GET'])
+def end(game_session_id):
+    try:
+        if 'game_session' not in session or int(session['game_session']['id']) != int(game_session_id):
+            flash('Session invalide',
+                  'error')
+            return redirect(url_for('index'))
+        elif datetime.now() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
+            flash('Session expirée', 'error')
+            return redirect(url_for('index'))
+
+        question_data = session['game_session']['questions']            
+                
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+            
+        quizz = data[str(session['game_session']['quizz_id'])]
+        
+        score = 0
+        for q in question_data:            
+            selected_answer_text = []
+            for a in q['selected_answers']:
+                selected_answer_text.append(q['answers'][int(a)])
+                
+            if selected_answer_text:
+                if set(q['correct']) == set(selected_answer_text):
+                    score += 1
+                else:
+                    if quizz['notation'] == 'Points négatifs':
+                        score -= 1
+        
+        data_to_insert = {
+            'id': random.randint(1000000000000000, 9999999999999999),
+            'date': datetime.now().strftime('%Y-%m-%d'),
+            'score': score,
+            'answer': [
+                [int(a) for a in q['selected_answers']] for q in question_data
+            ]
+        }
+        
+        # Find into quizzes where id=quizz_version_id
+        quizz_version = next(q for q in quizz['quizzes'] if int(q['id']) == int(session['game_session']['quizz_version_id']))
+        
+        # Append the new attempt
+        quizz_version['attempts'].append(data_to_insert)
+                
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
+            json.dump(data, file, indent=4)
+            
+        quizz_id = session['game_session']['quizz_id']
+        quizz_version_id = session['game_session']['quizz_version_id']
+        attempt_id = data_to_insert['id']
+            
+        del session['game_session']
+            
+        return redirect(url_for('attempt', quizz_id=quizz_id, quizz_version_id=quizz_version_id, attempt_id=attempt_id))
+    except Exception as e:
+        logging.error(e)
+        flash('Une erreur est survenue', 'error')
+        return redirect(url_for('index'))
+    
+@app.route('/quizz/<int:quizz_id>/attempt/<int:quizz_version_id>/<int:attempt_id>', methods=['GET'])
+def attempt(quizz_id, quizz_version_id, attempt_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+        
+        quizz = data[str(quizz_id)]
+        quizz_version = next(q for q in quizz['quizzes'] if q['id'] == quizz_version_id)
+        attempt = next(a for a in quizz_version['attempts'] if a['id'] == attempt_id)
+        
+        index_of_right_answers = []
+        
+        for i in range(len(quizz_version['questions'])):
+            questions_selected = []
+            for a in attempt['answer'][i]:
+                questions_selected.append(quizz_version['questions'][i]['answers'][int(a)])
+            
+            print(questions_selected)
+            print(quizz_version['questions'][i]['correct'])  
+                        
+            if set(quizz_version['questions'][i]['correct']) == set(questions_selected):
+                index_of_right_answers.append(i)
+        
+        print(index_of_right_answers)
+                
+        data_to_show = {
+            'id': quizz_id,
+            'version_id': quizz_version_id,
+            'title': quizz['title'],
+            'type': quizz['type'],
+            'notation': quizz['notation'],
+            'type': quizz['type'],
+            'color': quizz['color'],
+            'score': attempt['score'],
+            'date': attempt['date'],
+            'questions': quizz_version['questions'],
+            'answers': attempt['answer'],
+            'correct_answers_index': index_of_right_answers
+        }
+        
+        return render_template('attempt.html', data=data_to_show)
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
