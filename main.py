@@ -12,7 +12,7 @@ from google.genai import types
 
 from pdf2image import convert_from_path
 
-import base64
+import shutil
 from datetime import datetime, timedelta
 
 logging.basicConfig(level=logging.DEBUG)
@@ -307,7 +307,8 @@ def create3():
         user_files_dir = os.path.join(app.root_path, 'static', 'user_files')
         os.makedirs(user_files_dir, exist_ok=True)
         user_file_path = os.path.join(user_files_dir, f'file_quizz_{quizz_id}.pdf')
-        os.rename(session['course_pdf'], user_file_path)
+        shutil.copy2(session['course_pdf'], user_file_path)
+        os.remove(session['course_pdf'])
         
         pdf_previw_dir = os.path.join(app.root_path, 'static', 'pdf_preview')
         os.makedirs(pdf_previw_dir, exist_ok=True)
