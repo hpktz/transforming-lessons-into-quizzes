@@ -1,5 +1,6 @@
 Flask
 flask-session
+flask-login
 google-genai
 pdf2image
 python-dotenv
