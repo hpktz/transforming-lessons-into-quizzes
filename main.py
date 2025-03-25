@@ -546,13 +546,13 @@ def play(game_session_id, question):
             else:
                 end = True
                 
-            if 'choice' not in request.form:
+            if 'choice' not in request.form and 'choice[]' not in request.form:
                 answer = []
             else:
                 if len(question_data[question_id]['correct']) == 1:
                     answer = [request.form['choice']]
                 else:
-                    answer = request.form.getlist('choice')
+                    answer = request.form.getlist('choice[]')
                 
                 question_data[question_id]['answered'] = True
                 question_data[question_id]['selected_answers'] = answer
