@@ -609,4 +609,12 @@ def attempt(quizz_id, quizz_version_id, attempt_id):
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    try:
+        app.run(debug=True, port=port)
+    except OSError as e:
+        if 'Address already in use' in str(e):
+            port += 1
+            app.run(debug=True, port=port)
+        else:
+            raise e
