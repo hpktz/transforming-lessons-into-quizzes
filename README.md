@@ -41,22 +41,9 @@ Avant de commencer, assurez-vous d'avoir installé :
 3. **Configurez l'API Gemini** :
    
    Créez un fichier `.env` via la ligne de commande** :
-   - Utiliser `nano` sur macOS/Linux :
-     ```bash
-     nano .env
-     ```
-   - Utiliser `notepad` sur Windows :
-     ```bash
-       notepad .env
-     ```
-
-   Ajoutez votre clé API Gemini dans le fichier `.env` :
-   ```bash
-   GEMINI_API_KEY=votre_clé_api_gemini_ici
-   ```
-
-   Enregistrez et fermez le fichier.
-   
+    ```bash
+    echo "GEMINI_API_KEY=votre_clé_api_gemini_ici" > .env
+    ```   
 
 ## ▶️ Démarrage de l'application
 
