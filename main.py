@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template, session, url_for, redirect, flash
 from flask_session import Session
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
 import os
 import random
 import logging
@@ -22,8 +24,66 @@ app.secret_key = secret_key
 
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
+# Override the default static file handler to add authentication
+app.static_folder = 'static'
+app.static_url_path = '/static'
+
+original_send_static_file = app.send_static_file
+
+def custom_send_static_file(filename):
+    protected_paths = ['user_files', 'user_data.json']
+    
+    is_protected = any(filename.startswith(path) for path in protected_paths)
+    
+    if is_protected and not current_user.is_authenticated:
+        return redirect(url_for('login_page', next=request.url))
+    
+    return original_send_static_file(filename)
+
+app.send_static_file = custom_send_static_file
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login_page'
+login_manager.login_message = "Veuillez vous connecter pour accéder à cette page."
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+@app.route('/login', methods=['GET'])
+def login_page():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    password = request.form['password']
+    password_to_check = os.environ['PASSWORD']
+    
+    if password == password_to_check:
+        user = User(1)
+        login_user(user)
+    else:            
+        flash("Mot de passe incorrect", "error")
+        return redirect(url_for('login_page'))
+    
+    next_page = request.args.get('next')
+    return redirect(next_page or url_for('index'))
+
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login_page'))
 
 @app.route('/', methods=['GET'])
+@login_required
 def index():
     try:
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
@@ -57,6 +117,7 @@ def index():
         return render_template('home.html', data=[])
     
 @app.route('/delete/<int:quizz_id>', methods=['GET'])
+@login_required
 def delete(quizz_id):
     try:
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
@@ -73,10 +134,12 @@ def delete(quizz_id):
         return redirect(url_for('index'))
 
 @app.route('/create/1', methods=['GET'])
+@login_required
 def create1():
     return render_template('creation-step1.html')
 
 @app.route('/create/2', methods=['POST'])
+@login_required
 def create2():
     try:
         data = request.form
@@ -95,6 +158,7 @@ def create2():
         return render_template('creation-step1.html', error_mess="Une erreur est survenue")
 
 @app.route('/create/3', methods=['POST'])
+@login_required
 def create3():
     try:
         data = request.form
@@ -260,6 +324,7 @@ def create3():
         return jsonify({'success': False, 'error': str(e)})
     
 @app.route('/quizz/<int:quizz_id>', methods=['GET'])
+@login_required
 def quizz(quizz_id):
     try:
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
@@ -285,6 +350,7 @@ def quizz(quizz_id):
         return redirect(url_for('index'))
     
 @app.route('/quizz/<int:quizz_id>/generate', methods=['POST'])
+@login_required
 def generate_quizz(quizz_id):
     try:
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
@@ -407,6 +473,7 @@ def generate_quizz(quizz_id):
         return jsonify({'success': False, 'error': str(e)})
     
 @app.route('/quizz/<int:id>/play/<int:quizz_id>', methods=['GET'])
+@login_required
 def play_quizz(id, quizz_id):
     try:
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
@@ -443,6 +510,7 @@ def play_quizz(id, quizz_id):
         return redirect(url_for('index'))
 
 @app.route('/play/<int:game_session_id>/<int:question>', methods=['GET', 'POST'])
+@login_required
 def play(game_session_id, question):
     try:
         if 'game_session' not in session or int(session['game_session']['id']) != int(game_session_id):
@@ -503,6 +571,7 @@ def play(game_session_id, question):
         return redirect(url_for('index'))
     
 @app.route('/play/<int:game_session_id>/end', methods=['GET'])
+@login_required
 def end(game_session_id):
     try:
         if 'game_session' not in session or int(session['game_session']['id']) != int(game_session_id):
@@ -564,6 +633,7 @@ def end(game_session_id):
         return redirect(url_for('index'))
     
 @app.route('/quizz/<int:quizz_id>/attempt/<int:quizz_version_id>/<int:attempt_id>', methods=['GET'])
+@login_required
 def attempt(quizz_id, quizz_version_id, attempt_id):
     try:
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
@@ -609,12 +679,4 @@ def attempt(quizz_id, quizz_version_id, attempt_id):
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    #try:
-    app.run(debug=True, port=port)
-    #except OSError as e:
-    #    if 'Address already in use' in str(e):
-    #        port += 1
-    #        app.run(debug=True, port=port)
-    #    else:
-    #        raise e
+    app.run(debug=True)

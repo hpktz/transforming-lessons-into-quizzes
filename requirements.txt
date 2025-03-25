@@ -3,3 +3,4 @@ flask-session
 google-genai
 pdf2image
 python-dotenv
+Gunicorn
