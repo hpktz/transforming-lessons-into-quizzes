@@ -193,6 +193,10 @@ def create3():
                     types.Part.from_text(text=f"""Instructions :
                     - Génère un quiz de {session['quizz_size']} questions en te basant uniquement sur le contenu du PDF fourni.
                     - Le quiz doit être au format {session['quizz_type']}.
+                    - Si il est a choix multiple, créer des questions avec plusieurs réponses correctes.
+                    - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
+                    - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
+                    - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
                     - Applique un système de notation {session['quizz_notation']}.
                     - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {session['quizz_notions']}.
                     - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
@@ -379,6 +383,10 @@ def generate_quizz(quizz_id):
                     - Génère un quiz de {quizz['size']} questions en te basant uniquement sur le contenu du PDF fourni.
                     - Le quiz doit être au format {quizz['type']}.
                     - Applique un système de notation {quizz['notation']}.
+                    - Si il est a choix multiple, créer des questions avec plusieurs réponses correctes.
+                    - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
+                    - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
+                    - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
                     - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {quizz['notions']}.
                     - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
                     - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des
