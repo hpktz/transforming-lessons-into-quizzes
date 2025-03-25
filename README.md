@@ -20,7 +20,7 @@ Avant de commencer, assurez-vous d'avoir installé :
 - **Git** : [Télécharger Git](https://git-scm.com/downloads)
 - **Clé API Gemini** : [Obtenir sur Google AI Studio](https://ai.google.dev/)
 - **Poppler** (utilisé par pdf2image) :
-  - macOS : `brew install poppler`
+  - macOS : `brew install poppler` (installation de brew : [instructions](https://brew.sh/))
   - Ubuntu/Debian : `sudo apt-get install poppler-utils`
   - Windows : [Instructions d'installation](https://github.com/oschwartz10612/poppler-windows/releases/)
 
@@ -29,21 +29,34 @@ Avant de commencer, assurez-vous d'avoir installé :
 1. **Clonez le dépôt** :
    ```bash
    cd Documents
-   git clone https://github.com/[votre-nom]/transforming-lessons-into-quizzes.git
+   git clone https://github.com/hpktz/transforming-lessons-into-quizzes.git
    cd transforming-lessons-into-quizzes
    ```
 
 2. **Installez les dépendances** :
    ```bash
-   pip install -r requirements.txt
+   python3 -m pip install -r requirements.txt
    ```
 
 3. **Configurez l'API Gemini** :
    
-   **Créez un fichier `.env` via la ligne de commande** :
+   Créez un fichier `.env` via la ligne de commande** :
+   - Utiliser `nano` sur macOS/Linux :
+     ```bash
+     nano .env
+     ```
+   - Utiliser `notepad` sur Windows :
+     ```bash
+       notepad .env
+     ```
+
+   Ajoutez votre clé API Gemini dans le fichier `.env` :
    ```bash
-   echo GEMINI_API_KEY=votre_clé_api_gemini_ici > .env
+   GEMINI_API_KEY=votre_clé_api_gemini_ici
    ```
+
+   Enregistrez et fermez le fichier.
+   
 
 ## ▶️ Démarrage de l'application
 

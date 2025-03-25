@@ -6,10 +6,10 @@ REM Mettre à jour le code depuis GitHub
 git pull
 
 REM Installer / mettre à jour les dépendances Python
-pip install --upgrade -r requirements.txt
+python3 -m pip install --upgrade -r requirements.txt
 
 REM Lancer main.py en arrière-plan
-start /B python main.py
+start /B python3 main.py
 
 REM Patienter quelques secondes pour que le serveur se lance
 timeout /T 2 > nul

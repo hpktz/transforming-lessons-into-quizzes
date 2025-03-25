@@ -5,10 +5,10 @@ cd "$(dirname "$0")"
 git pull
 
 # Installer / mettre à jour les dépendances Python
-pip install --upgrade -r requirements.txt
+python3 -m pip install --upgrade -r requirements.txt
 
 # Lancer main.py
-python main.py &
+python3 main.py &
 
 # Patienter un instant pour que le serveur se lance
 sleep 2
