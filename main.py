@@ -14,6 +14,13 @@ from pdf2image import convert_from_path
 
 import shutil
 from datetime import datetime, timedelta
+import pytz
+
+def get_paris_time():
+    """Retourne l'heure actuelle au fuseau horaire de Paris."""
+    paris_tz = pytz.timezone('Europe/Paris')
+    return datetime.now(pytz.UTC).astimezone(paris_tz)
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -301,7 +308,7 @@ def create3():
             'quizzes': [
                 {
                     'id': random.randint(1000000000000000, 9999999999999999),
-                    'date': datetime.now().strftime('%Y-%m-%d'),
+                    'date': get_paris_time().strftime('%Y-%m-%d'),
                     'questions': output['questions'],
                     'attempts': []
                 }
@@ -468,7 +475,7 @@ def generate_quizz(quizz_id):
         
         quizz['quizzes'].append({
             'id': random.randint(1000000000000000, 9999999999999999),
-            'date': datetime.now().strftime('%Y-%m-%d'),
+            'date': get_paris_time().strftime('%Y-%m-%d'),
             'questions': output['questions'],
             'attempts': []
         })
@@ -492,7 +499,7 @@ def play_quizz(id, quizz_id):
             return redirect(url_for('index'))
         
         game_session_id = random.randint(1000000000000000, 9999999999999999)
-        expire_date = datetime.now() + timedelta(hours=2)
+        expire_date = get_paris_time() + timedelta(hours=2)
         
         session['game_session'] = {
             'id': game_session_id,
@@ -500,7 +507,7 @@ def play_quizz(id, quizz_id):
             'color': data[str(id)]['color'],
             'quizz_version_id': quizz_id,
             'expire_date': expire_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'date_start': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'date_start': get_paris_time().strftime('%Y-%m-%d %H:%M:%S'),
             'questions': [
                 {
                     'question': q['question'][3:] if q['question'][:3].isdigit() and q['question'][2] == '.' else q['question'],
@@ -525,7 +532,7 @@ def play(game_session_id, question):
         if 'game_session' not in session or int(session['game_session']['id']) != int(game_session_id):
             flash('Session invalide', 'error')
             return redirect(url_for('index'))
-        elif datetime.now() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
+        elif get_paris_time() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
             flash('Session expirée', 'error')
             return redirect(url_for('index'))
         elif question < 0 or question >= len(session['game_session']['questions']):
@@ -587,7 +594,7 @@ def end(game_session_id):
             flash('Session invalide',
                   'error')
             return redirect(url_for('index'))
-        elif datetime.now() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
+        elif get_paris_time() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
             flash('Session expirée', 'error')
             return redirect(url_for('index'))
 
@@ -613,7 +620,7 @@ def end(game_session_id):
         
         data_to_insert = {
             'id': random.randint(1000000000000000, 9999999999999999),
-            'date': datetime.now().strftime('%Y-%m-%d'),
+            'date': get_paris_time().strftime('%Y-%m-%d'),
             'score': score,
             'answer': [
                 [int(a) for a in q['selected_answers']] for q in question_data
