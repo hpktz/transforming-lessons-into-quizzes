@@ -10,9 +10,7 @@
 # Ignorer les fichiers de sauvegarde
 /static/user_files/*
 /static/pdf_preview/*
-/static/user_data.json
 /flask_session/*
 
 # Ignorer les fichiers temporaires
 /tmp/*
-static/user_data.json
