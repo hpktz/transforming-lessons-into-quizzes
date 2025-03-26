@@ -21,6 +21,11 @@ def get_paris_time():
     paris_tz = pytz.timezone('Europe/Paris')
     return datetime.now(pytz.UTC).astimezone(paris_tz)
 
+def parse_datetime_with_tz(datetime_str, format_str='%Y-%m-%d %H:%M:%S'):
+    """Convertit une chaîne de date en datetime avec le fuseau horaire de Paris."""
+    naive_datetime = datetime.strptime(datetime_str, format_str)
+    paris_tz = pytz.timezone('Europe/Paris')
+    return paris_tz.localize(naive_datetime)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -532,7 +537,7 @@ def play(game_session_id, question):
         if 'game_session' not in session or int(session['game_session']['id']) != int(game_session_id):
             flash('Session invalide', 'error')
             return redirect(url_for('index'))
-        elif get_paris_time() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
+        elif get_paris_time() > parse_datetime_with_tz(session['game_session']['expire_date']):
             flash('Session expirée', 'error')
             return redirect(url_for('index'))
         elif question < 0 or question >= len(session['game_session']['questions']):
@@ -571,7 +576,7 @@ def play(game_session_id, question):
             
             
             
-        date_start = datetime.strptime(session['game_session']['date_start'], '%Y-%m-%d %H:%M:%S')
+        date_start = parse_datetime_with_tz(session['game_session']['date_start'])
         
         print(date_start)
             
@@ -594,7 +599,7 @@ def end(game_session_id):
             flash('Session invalide',
                   'error')
             return redirect(url_for('index'))
-        elif get_paris_time() > datetime.strptime(session['game_session']['expire_date'], '%Y-%m-%d %H:%M:%S'):
+        elif get_paris_time() > parse_datetime_with_tz(session['game_session']['expire_date']):
             flash('Session expirée', 'error')
             return redirect(url_for('index'))
 
