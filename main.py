@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session, url_for, redirect, flash
+from flask import Flask, request, jsonify, render_template, session, url_for, redirect, flash, make_response
 from flask_session import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -98,8 +98,16 @@ def logout():
 @login_required
 def index():
     try:
+        print('test')
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
             data = json.load(file)
+                    
+        if not data:
+            cookies_saved = request.cookies.get('user_data')
+            cookies_saved = json.loads(cookies_saved) if cookies_saved else {}
+            with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
+                json.dump(cookies_saved, file, indent=4)
+            data = cookies_saved
         
         data_to_show = []
         
@@ -107,9 +115,7 @@ def index():
             query = int(request.args.get('quizz'))
         else:
             query = 0
-        
-        print(query)
-        
+                
         for key in data:        
             data_to_show.append({
                 'id': key,
@@ -139,8 +145,12 @@ def delete(quizz_id):
         
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
             json.dump(data, file, indent=4)
+            
+        # Save the entire JSON data in cookies with 1 year expiration
+        response = make_response(redirect(url_for('index')))
+        response.set_cookie('user_data', json.dumps(data), max_age=31536000)
+        return response
         
-        return redirect(url_for('index'))
     except Exception as e:
         logging.error(e)
         return redirect(url_for('index'))
@@ -334,8 +344,18 @@ def create3():
 
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
             json.dump(quizz, file, indent=4)
-
-        return jsonify({'success': True, 'quizz_id': quizz_id})
+            
+        del session['course_name']
+        del session['course_level']
+        del session['course_pdf']
+        del session['quizz_type']
+        del session['quizz_notation']
+        del session['quizz_size']
+        del session['quizz_notions']
+        
+        response = make_response(jsonify({'success': True, 'quizz_id': quizz_id}))
+        response.set_cookie('user_data', json.dumps(quizz), max_age=31536000)
+        return response
     except Exception as e:
         logging.error(e)
         return jsonify({'success': False, 'error': str(e)})
@@ -488,7 +508,9 @@ def generate_quizz(quizz_id):
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
             json.dump(data, file, indent=4)
             
-        return jsonify({'success': True})
+        response = make_response(jsonify({'success': True}))
+        response.set_cookie('user_data', json.dumps(data), max_age=31536000)
+        return response
     except Exception as e:
         logging.error(e)
         return jsonify({'success': False, 'error': str(e)})
@@ -577,9 +599,7 @@ def play(game_session_id, question):
             
             
         date_start = parse_datetime_with_tz(session['game_session']['date_start'])
-        
-        print(date_start)
-            
+                    
         return render_template('play.html', 
                                id=session['game_session']['id'], 
                                question=question, 
@@ -640,14 +660,16 @@ def end(game_session_id):
                 
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
             json.dump(data, file, indent=4)
-            
+                        
         quizz_id = session['game_session']['quizz_id']
         quizz_version_id = session['game_session']['quizz_version_id']
         attempt_id = data_to_insert['id']
             
         del session['game_session']
             
-        return redirect(url_for('attempt', quizz_id=quizz_id, quizz_version_id=quizz_version_id, attempt_id=attempt_id))
+        response = make_response(redirect(url_for('attempt', quizz_id=quizz_id, quizz_version_id=quizz_version_id, attempt_id=attempt_id)))
+        response.set_cookie('user_data', json.dumps(data), max_age=31536000)
+        return response
     except Exception as e:
         logging.error(e)
         flash('Une erreur est survenue', 'error')
