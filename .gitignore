@@ -15,3 +15,14 @@
 
 # Ignorer les fichiers temporaires
 /tmp/*
+.DS_Store
+*.log
+*.swp
+*.swo
+*.bak
+*.tmp
+*.pid
+*.seed
+*.pid.lock
+*.sqlite3
+*.sqlite 

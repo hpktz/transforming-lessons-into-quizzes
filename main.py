@@ -101,13 +101,6 @@ def index():
         print('test')
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
             data = json.load(file)
-                    
-        if not data:
-            cookies_saved = request.cookies.get('user_data')
-            cookies_saved = json.loads(cookies_saved) if cookies_saved else {}
-            with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
-                json.dump(cookies_saved, file, indent=4)
-            data = cookies_saved
         
         data_to_show = []
         
@@ -128,6 +121,7 @@ def index():
                 'last_attempt': "...", 
                 'to_highlight': True if int(key) == query else False
             })
+        
         
         return render_template('home.html', data=data_to_show)
     except Exception as e:

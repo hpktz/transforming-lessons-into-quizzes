@@ -43,8 +43,17 @@ Avant de commencer, assurez-vous d'avoir installé :
    Créez un fichier `.env` via la ligne de commande** :
     ```bash
     echo "GEMINI_API_KEY=votre_clé_api_gemini_ici" > .env
+    echo "PASSWORD=mot_de_passe" >> .env
     ```   
+    (Changez `votre_clé_api_gemini_ici` par votre clé API et `mot_de_passe` par le mot de passe souhaité pour l'accès à l'application)
 
+4. **Créez le fichier `user_data.json`** :
+   ```bash
+   cd static
+   touch user_data.json
+   echo "{}" > user_data.json
+   ```
+   
 ## ▶️ Démarrage de l'application
 
 ### Méthode simple (scripts fournis)
