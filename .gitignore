@@ -11,6 +11,7 @@
 /static/user_files/*
 /static/pdf_preview/*
 /flask_session/*
+/static/user_data.json
 
 # Ignorer les fichiers temporaires
 /tmp/*
