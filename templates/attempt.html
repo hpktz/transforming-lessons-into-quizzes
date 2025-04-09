@@ -71,8 +71,18 @@
                             {% if choice in quest.correct %}
                             {% set correct = "correct" %}
                             {% endif %}
+                            {% if loop.index0 in data.answers[quest_index] and choice in quest.correct %}
+                            {% set correct = "correct_user" %}
+                            {% endif %}
                             <div class="choice_content {{wrong}} {{correct}}">{{choice}}</div>
                         {% endfor %}
+                    </div>
+                    <div class="explanation">
+                        {% if quest.explanation %}
+                        <div class="explanation_title">Explications</div>
+                        <div class="explanation_text">{{quest.explanation}}</div>
+                        <div class="explanation_source" data-page="{{quest.sources[0].page}}" data-source="{{quest.sources[0].source}}" data-doc="{{data.doc_url}}">Voir le cours</div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

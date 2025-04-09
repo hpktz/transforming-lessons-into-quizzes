@@ -167,6 +167,11 @@ main {
 }
 
 .question_container .question_choices .choice_content.correct {
+    background-color: #4caf4f57;
+    color: black;
+}
+
+.question_container .question_choices .choice_content.correct_user {
     background-color: #4caf50;
     color: white;
 }
@@ -265,4 +270,30 @@ main {
     font-size: 1rem;
     font-weight: 400;
     color: #999;
+}
+
+.explanation {
+    border-top: 1px solid #ccc;
+    margin-top: 25px;
+    padding-top: 25px;
+}
+
+.explanation .explanation_title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.explanation .explanation_text {
+    font-size: 1.1rem;
+    font-weight: normal;
+    color: #333;
+}
+
+.explanation .explanation_source {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #d9a1d0;
+    margin-top: 10px;
+    cursor: pointer;
 }

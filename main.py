@@ -209,14 +209,16 @@ def create3():
                     types.Part.from_text(text=f"""Instructions :
                     - Génère un quiz de {session['quizz_size']} questions en te basant uniquement sur le contenu du PDF fourni.
                     - Le quiz doit être au format {session['quizz_type']}.
-                    - Si il est a choix multiple, créer des questions avec plusieurs réponses correctes.
+                    - Si il est a choix multiple, créer uniquement des questions avec plusieurs réponses correctes.
                     - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
                     - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
                     - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
                     - Applique un système de notation {session['quizz_notation']}.
                     - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {session['quizz_notions']}.
                     - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
-                    - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents."""),
+                    - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents.
+                    - Pour chaque question, cite la source exacte en indiquant le texte ou l'image spécifique et le numéro de page du document PDF.
+                    """),
                 ],
             ),
         ]
@@ -262,6 +264,28 @@ def create3():
                                     description = "Liste des réponses correctes (peut contenir les valeurs ou les index)",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.STRING,
+                                    ),
+                                ),
+                                "explanation": genai.types.Schema(
+                                    type = genai.types.Type.STRING,
+                                    description = "Explication de la réponse",
+                                ),
+                                "sources": genai.types.Schema(
+                                    type = genai.types.Type.ARRAY,
+                                    description = "Liste des sources",
+                                    items = genai.types.Schema(
+                                        type = genai.types.Type.OBJECT,
+                                        required = ["source", "page"],
+                                        properties = {
+                                            "source": genai.types.Schema(
+                                                type = genai.types.Type.STRING,
+                                                description = "Source de la question",
+                                            ),
+                                            "page": genai.types.Schema(
+                                                type = genai.types.Type.INTEGER,
+                                                description = "Numéro de page de la source",
+                                            ),
+                                        },
                                     ),
                                 ),
                             },
@@ -399,25 +423,25 @@ def generate_quizz(quizz_id):
         
         contents = [
             types.Content(
-                role="user",
-                parts=[
-                    types.Part.from_uri(
-                        file_uri=files[0].uri,
-                        mime_type=files[0].mime_type,
-                    ),
-                    types.Part.from_text(text=f"""Instructions :
-                    - Génère un quiz de {quizz['size']} questions en te basant uniquement sur le contenu du PDF fourni.
-                    - Le quiz doit être au format {quizz['type']}.
-                    - Applique un système de notation {quizz['notation']}.
-                    - Si il est a choix multiple, créer des questions avec plusieurs réponses correctes.
-                    - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
-                    - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
-                    - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
-                    - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {quizz['notions']}.
-                    - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
-                    - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des
-                    distracteurs pertinents."""),
-                ],
+            role="user",
+            parts=[
+                types.Part.from_uri(
+                file_uri=files[0].uri,
+                mime_type=files[0].mime_type,
+                ),
+                types.Part.from_text(text=f"""Instructions :
+                - Génère un quiz de {quizz['size']} questions en te basant uniquement sur le contenu du PDF fourni.
+                - Le quiz doit être au format {quizz['type']}.
+                - Applique un système de notation {quizz['notation']}.
+                - Si il est a choix multiple, créer uniquement des questions avec plusieurs réponses correctes.
+                - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
+                - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
+                - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
+                - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {quizz['notions']}.
+                - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
+                - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents.
+                - Pour chaque question, cite la source exacte en indiquant le texte ou l'image spécifique et le numéro de page du document PDF."""),
+            ],
             ),
         ]
         
@@ -462,6 +486,28 @@ def generate_quizz(quizz_id):
                                     description = "Liste des réponses correctes (peut contenir les valeurs ou les index)",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.STRING,
+                                    ),
+                                ),
+                                "explanation": genai.types.Schema(
+                                    type = genai.types.Type.STRING,
+                                    description = "Explication de la réponse",
+                                ),
+                                "sources": genai.types.Schema(
+                                    type = genai.types.Type.ARRAY,
+                                    description = "Liste des sources",
+                                    items = genai.types.Schema(
+                                        type = genai.types.Type.OBJECT,
+                                        required = ["source", "page"],
+                                        properties = {
+                                            "source": genai.types.Schema(
+                                                type = genai.types.Type.STRING,
+                                                description = "Source de la question",
+                                            ),
+                                            "page": genai.types.Schema(
+                                                type = genai.types.Type.INTEGER,
+                                                description = "Numéro de page de la source",
+                                            ),
+                                        },
                                     ),
                                 ),
                             },
@@ -686,19 +732,15 @@ def attempt(quizz_id, quizz_version_id, attempt_id):
             questions_selected = []
             for a in attempt['answer'][i]:
                 questions_selected.append(quizz_version['questions'][i]['answers'][int(a)])
-            
-            print(questions_selected)
-            print(quizz_version['questions'][i]['correct'])  
                         
             if set(quizz_version['questions'][i]['correct']) == set(questions_selected):
                 index_of_right_answers.append(i)
-        
-        print(index_of_right_answers)
-                
+                        
         data_to_show = {
             'id': quizz_id,
             'version_id': quizz_version_id,
             'title': quizz['title'],
+            'doc_url': url_for('static', filename=f'user_files/file_quizz_{quizz_id}.pdf'),
             'type': quizz['type'],
             'notation': quizz['notation'],
             'type': quizz['type'],
