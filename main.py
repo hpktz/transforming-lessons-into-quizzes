@@ -721,5 +721,25 @@ def attempt(quizz_id, quizz_version_id, attempt_id):
         logging.error(e)
         return redirect(url_for('index'))
 
+@app.route('/stop', methods=['GET'])
+@login_required
+def stop():
+    # Stop the flask app and close the browser tab
+    import os, signal
+    pid = os.getpid()
+    # Return HTML with JavaScript to close the tab before killing the process
+    html = render_template('stop_server.html')
+    # Use a short delay to give the browser time to process the close command
+    def shutdown():
+        import time
+        time.sleep(0.5)
+        os.kill(pid, signal.SIGTERM)
+        
+    import threading
+    threading.Thread(target=shutdown).start()
+    
+    return html
+
+
 if __name__ == '__main__':
     app.run(debug=True)

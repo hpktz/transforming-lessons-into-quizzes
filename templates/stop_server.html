@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arrêt du serveur</title>
+    <script>
+        // Close the current tab
+        window.close();
+        // Alternative for browsers that don't allow scripts to close tabs
+        setTimeout(function() {
+            document.body.innerHTML = "<p>Le serveur a été arrêté. Vous pouvez fermer cette page.<\p>";
+        }, 1000);
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+        }
+        
+        body {
+            --_mesh-gradient-blur: 0px;
+            --_mesh-gradient-blend-mode: normal;
+            
+            background: radial-gradient(at 1.8640350877192982% 93.14285714285714%, #bff2bb 0px, transparent 50%), radial-gradient(at 97.25877192982456% 5.333333333333334%, #dbfffc 0px, transparent 50%), radial-gradient(at 87.82894736842105% 91.42857142857143%, #e1a3da 0px, transparent 50%), radial-gradient(at 5% 2%, #ffe8c7 0px, transparent 50%) #ffffff;
+            mix-blend-mode: var(--_mesh-gradient-blend-mode);
+            filter: blur(var(--_mesh-gradient-blur));
+        
+            background-repeat: no-repeat;
+        
+            background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%;
+            animation: animate-background-rotation 10s infinite linear;
+        }
+        
+        @keyframes animate-background-rotation {
+            0% {
+                background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%;
+            }
+            100% {
+                background-position: 200% 200%, -100% 200%, -100% -100%, 200% -100%;
+            }
+        }
+
+        p {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <p>Arrêt du serveur en cours...</p>
+</body>
+</html>
