@@ -33,6 +33,6 @@ explanation_sources.forEach((source) => {
         const doc_url = source.dataset.doc;
 
         // Navigate to the doc url and to the page, highlighting the source in the pdf viewer
-        window.open(`${doc_url}#page=${page}&source=${encodeURIComponent(sourceText)}`, '_blank');
+        window.open(`${doc_url}#:~:text=${encodeURIComponent(sourceText)}&page=${page}`, '_blank');
     });
 });
