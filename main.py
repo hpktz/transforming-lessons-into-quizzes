@@ -110,6 +110,14 @@ def index():
             query = 0
                 
         for key in data:        
+            last_attempt_date = "1990-01-01"
+            last_attempt_score = 0
+            for quizz in data[key]['quizzes']:
+                if quizz['attempts']:
+                    if quizz['attempts'][-1]['date'] > last_attempt_date:
+                        last_attempt_date = quizz['attempts'][-1]['date']
+                        last_attempt_score = quizz['attempts'][-1]['score']
+            
             data_to_show.append({
                 'id': key,
                 'title': data[key]['title'],
@@ -118,7 +126,7 @@ def index():
                 'size': data[key]['size'],
                 'preview_path': url_for('static', filename=f'pdf_preview/preview_{key}.jpg'),
                 'quizz_amount': len(data[key]['quizzes']),
-                'last_attempt': "...", 
+                'last_attempt': last_attempt_score, 
                 'to_highlight': True if int(key) == query else False
             })
         
@@ -789,6 +797,7 @@ def play_quizz(id, quizz_id):
         
         session['game_session'] = {
             'id': game_session_id,
+            'title': data[str(id)]['title'],
             'quizz_id': id,
             'color': data[str(id)]['color'],
             'quizz_version_id': quizz_id,
@@ -861,6 +870,7 @@ def play(game_session_id, question):
                     
         return render_template('play.html', 
                                id=session['game_session']['id'], 
+                               title=session['game_session']['title'],
                                question=question, 
                                color=session['game_session']['color'], 
                                date_start=date_start,

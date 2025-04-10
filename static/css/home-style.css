@@ -233,6 +233,9 @@ header .creation-button:hover a {
     font-size: 1.2rem;
     font-weight: 600;
     color: #333;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .quizz-container .quizz-description {
