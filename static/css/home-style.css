@@ -203,7 +203,6 @@ header .creation-button:hover a {
     height:  125px;
     object-fit: cover;
     border-radius: 10px;
-    background-color: red;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -316,4 +315,82 @@ header .creation-button:hover a {
     100% {
         top: -100px;
     }
+}
+
+.create-popup {
+    position: fixed;
+    top: 150%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.create-popup.active {
+    top: 50%;
+    box-shadow: 0 0 10px 10000px rgba(0, 0, 0, 0.4);
+}
+
+.return_button {
+    display: flex;
+    align-items: center;
+    width: 120px;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 5px 10px;
+    border-radius: 10px;
+    background-color: #e2e2e2;
+}
+
+.return_button img {
+    width: 25px;
+    height: 25px;
+}
+
+.return_button .return_button_text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.return_button:hover {
+    background-color: #ccc;
+}
+
+.choices-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 20px;
+}
+.choice-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-align: center;
+}
+
+.choice-container:hover {
+    background-color: #e1a3da;
+}
+
+.choice-container  img {
+    width: 75%;
+    text-align: center;
+}
+
+.choice-container p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
 }

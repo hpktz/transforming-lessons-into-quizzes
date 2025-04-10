@@ -54,8 +54,6 @@ quizz_notions.addEventListener('keypress', function(event) {
 
 form.addEventListener('submit', async function(event) {
     event.preventDefault();
-
-    
 });
 
 const next_button = document.getElementById('next_button'); 

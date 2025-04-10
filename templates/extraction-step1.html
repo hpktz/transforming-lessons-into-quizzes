@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création d'un quizz</title>
+    <link rel="stylesheet" href="/static/css/creation.css">
+</head>
+<body>
+    <main id="main">
+        <div class="return_button" id="return_button">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <h1>Pièces necessaires</h1>
+        <p class="error-message" id="error-message">{{error_mess}}</p>
+        <form action="/extract/2" method="POST" id="extraction_form_stp1">
+            <div class="selector">
+                <p>Système de notation ?</p>
+                <select name="quizz_notation" id="quizz_notation" required>
+                    <option value="Points négatifs">Points négatifs</option>
+                    <option value="Notation classique">Notation classique</option>
+                </select>
+            </div>
+            <p>Ajoutez le document pdf contenant l'annale</p>
+            <input type="file" name="quizz_pdf" id="quizz_pdf" accept="application/pdf" required>
+            <label for="quizz_pdf" id="quizz_pdf_label">
+                <div>Ajouter un fichier PDF</div>
+            </label>
+            <p>Ajoutez le cours en pdf associé à l'annale transmise</p>
+            <input type="file" name="course_pdf" id="course_pdf" accept="application/pdf" required>
+            <label for="course_pdf" id="course_pdf_label">
+                <div>Ajouter un fichier PDF</div>
+            </label>
+            <div id="next_button">Générer</div>
+        </form>
+    </main>
+    <main class="to_enter" id="loader">
+        <div class="loader"></div>
+    </main>
+    <script src="/static/js/extraction-step1.js"></script>
+</body>
+</html>

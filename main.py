@@ -378,6 +378,225 @@ def create3():
         logging.error(e)
         return jsonify({'success': False, 'error': str(e)})
     
+@app.route('/extract/1', methods=['GET'])
+@login_required
+def extract1():
+    return render_template('extraction-step1.html')
+
+@app.route('/extract/2', methods=['POST'])
+@login_required
+def extract2():
+    try:
+        data = request.form
+        
+        quizz_notation = data['quizz_notation']
+        
+        course_pdf = request.files['course_pdf']
+        quizz_pdf = request.files['quizz_pdf']
+        
+        course_temp_path = os.path.join('/tmp', course_pdf.filename)
+        quizz_temp_path = os.path.join('/tmp', quizz_pdf.filename)
+        
+        course_pdf.save(course_temp_path)
+        quizz_pdf.save(quizz_temp_path)
+        
+        quizz_id = random.randint(1000000000000000, 9999999999999999)
+        
+        # Load the json file
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            quizz_data = json.load(file)     
+        
+        client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
+        
+        files = [
+            client.files.upload(file=course_temp_path),
+            client.files.upload(file=quizz_temp_path)
+        ]
+        
+        model = "gemini-2.0-flash"
+        
+        contents = [
+            types.Content(
+                role="user",
+                parts=[
+                    types.Part.from_uri(
+                        file_uri=files[0].uri,
+                        mime_type="application/pdf",
+                    ),
+                    types.Part.from_uri(
+                        file_uri=files[1].uri,
+                        mime_type="application/pdf",
+                    ),
+                    types.Part.from_text(text="""Instructions :
+                    - Tu reçois deux documents PDF :
+                        1. Le **premier document** est un cours (support de référence).
+                        2. Le **second document** est un quiz (avec des questions et des choix de réponses).
+                    - Tu dois extraire les informations du premier document en suivant le JSON donné.
+                    - Du document, tu en déduit un titre, un emoji, et un type (QCM, QCU, ou mixte).
+                    - Tu dois extraire du document toutes les questions posées (sans le numero de la question).
+                    - Pour chaque questions posée, tu dois en extraire les réponse possibles (sans le numero de la reponse possible).
+                    - Maintant, pour chaque question posée, tu dois trouver la bonne réponse parmis les réponses possibles.
+                    - Pour trouver la bonne réponse parmis les réponses possibles, tu dois te baser sur le contenu du premier document.
+                    - Pour chaque question, tu dois aussi trouver une explication de la réponse correcte (en français).
+                    - Pour chaque question, tu dois aussi trouver la source exacte dans le cours (texte ou image spécifique) et le numéro de page du document PDF.
+                    """)
+                ],
+            ),
+        ]
+        
+        generate_content_config = types.GenerateContentConfig(
+            temperature=1,
+            top_p=0.95,
+            top_k=40,
+            max_output_tokens=8192,
+            response_mime_type="application/json",
+            response_schema=genai.types.Schema(
+                type=genai.types.Type.OBJECT,
+                required=["status", "message"],
+                properties={
+                    "status": genai.types.Schema(
+                        type=genai.types.Type.STRING,
+                        description="État de la requête: SUCCESS ou ERROR",
+                    ),
+                    "message": genai.types.Schema(
+                        type=genai.types.Type.STRING,
+                        description="Message d'erreur si status=ERROR",
+                    ),
+                    "emoji": genai.types.Schema(
+                        type=genai.types.Type.STRING,
+                        description="Emoji représentant le thème du quiz",
+                    ),
+                    "title": genai.types.Schema(
+                        type=genai.types.Type.STRING,
+                        description="Titre du quiz extrait",
+                    ),
+                    "questions": genai.types.Schema(
+                        type=genai.types.Type.ARRAY,
+                        description="Liste des questions extraites",
+                        items=genai.types.Schema(
+                            type=genai.types.Type.OBJECT,
+                            required=["question", "answers", "correct"],
+                            properties={
+                                "question": genai.types.Schema(
+                                    type=genai.types.Type.STRING,
+                                    description="Texte de la question",
+                                ),
+                                "answers": genai.types.Schema(
+                                    type=genai.types.Type.ARRAY,
+                                    description="Liste des réponses possibles",
+                                    items=genai.types.Schema(
+                                        type=genai.types.Type.STRING,
+                                    ),
+                                ),
+                                "correct": genai.types.Schema(
+                                    type=genai.types.Type.ARRAY,
+                                    description="Liste des réponses correctes",
+                                    items=genai.types.Schema(
+                                        type=genai.types.Type.STRING,
+                                    ),
+                                ),
+                                "explanation": genai.types.Schema(
+                                    type=genai.types.Type.STRING,
+                                    description="Explication de la réponse correcte",
+                                ),
+                                "sources": genai.types.Schema(
+                                    type=genai.types.Type.ARRAY,
+                                    description="Liste des sources dans le cours",
+                                    items=genai.types.Schema(
+                                        type=genai.types.Type.OBJECT,
+                                        required=["source", "page"],
+                                        properties={
+                                            "source": genai.types.Schema(
+                                                type=genai.types.Type.STRING,
+                                                description="Source de la question",
+                                            ),
+                                            "page": genai.types.Schema(
+                                                type=genai.types.Type.INTEGER,
+                                                description="Numéro de page de la source",
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            },
+                        ),
+                    ),
+                },
+            ),
+        )
+
+        output = ""
+        for chunk in client.models.generate_content_stream(
+            model=model,
+            contents=contents,
+            config=generate_content_config,
+        ):
+            output += chunk.text
+            
+        response_data = json.loads(output)
+        logging.debug(f"API Response: {response_data}")
+        
+        if response_data.get('status') == 'ERROR':
+            os.remove(course_temp_path)
+            os.remove(quizz_temp_path)
+            return jsonify({'success': False, 'error': response_data.get('message')})
+        
+        pastel_colors = [
+            "#FFFBF2", "#FFF5E1", "#FAF3DD", "#F3E8EE", "#E8F8F5",
+            "#E3F2FD", "#F8E8FF", "#FDF8F5", "#F0F8FF", "#FCF5E5"
+        ]
+
+        # Préparer les données du quiz
+        quiz_title = response_data.get('title', 'Quiz extrait')
+        course_name = os.path.splitext(course_pdf.filename)[0]
+        
+        quizz_data[quizz_id] = {
+            'title': quiz_title,
+            'name': course_name,
+            'emoji': response_data.get('emoji', '📝'),
+            'level': 'Non spécifié',
+            'type': 'QCM',
+            'notation': quizz_notation,
+            'notions': 'Extraites de l\'annale',
+            'size': len(response_data.get('questions', [])),
+            'color': random.choice(pastel_colors),
+            'quizzes': [
+                {
+                    'id': random.randint(1000000000000000, 9999999999999999),
+                    'date': get_paris_time().strftime('%Y-%m-%d'),
+                    'questions': response_data.get('questions', []),
+                    'attempts': []
+                }
+            ]
+        }
+        
+        # Sauvegarder les fichiers
+        user_files_dir = os.path.join(app.root_path, 'static', 'user_files')
+        os.makedirs(user_files_dir, exist_ok=True)
+        user_file_path = os.path.join(user_files_dir, f'file_quizz_{quizz_id}.pdf')
+        shutil.copy2(course_temp_path, user_file_path)
+        
+        # Créer une prévisualisation du PDF
+        pdf_preview_dir = os.path.join(app.root_path, 'static', 'pdf_preview')
+        os.makedirs(pdf_preview_dir, exist_ok=True)
+        pdf_preview_path = os.path.join(pdf_preview_dir, f'preview_{quizz_id}.jpg')
+        images = convert_from_path(user_file_path)
+        images[0].save(pdf_preview_path, 'JPEG')
+
+        # Enregistrer les données dans le JSON
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
+            json.dump(quizz_data, file, indent=4)
+        
+        # Nettoyer les fichiers temporaires
+        os.remove(course_temp_path)
+        os.remove(quizz_temp_path)
+        
+        response = make_response(jsonify({'success': True, 'quizz_id': quizz_id}))
+        response.set_cookie('user_data', json.dumps(quizz_data), max_age=31536000)
+        return response
+    except Exception as e:
+        logging.error(e)
+        return jsonify({'success': False, 'error': str(e)})
+    
 @app.route('/quizz/<int:quizz_id>', methods=['GET'])
 @login_required
 def quizz(quizz_id):

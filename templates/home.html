@@ -31,7 +31,7 @@
                     </a>
                 </div>
                 <div class="creation-button">
-                    <a href="/create/1">Créer un quizz</a>
+                    <a id="create-button" href="/create/1">Créer un quizz</a>
                 </div>
             </header>
             {% if data|length == 0 %}
@@ -75,6 +75,23 @@
             </div>
         </div>
     </main>
+    <div class="create-popup" id="create-popup">
+        <div class="return_button" id="return_button">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <h1>Que voulez vous faire ?</h1>
+        <div class="choices-container">
+            <div class="choice-container" data-url="/create/1">
+                <img src="/static/imgs/quizz-creation.png" alt="creation">
+                <p>Création d'un quizz à partir d'un cours</p>
+            </div>
+            <div class="choice-container" data-url="/extract/1">
+                <img src="/static/imgs/quizz-extraction.png" alt="extraction">
+                <p>Extraction d'un quizz depuis une annale</p>
+            </div>
+        </div>
+    </div>
     <script src="/static/js/home.js"></script>
 </body>
 </html>
