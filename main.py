@@ -224,6 +224,8 @@ def create3():
                     - Applique un système de notation {session['quizz_notation']}.
                     - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {session['quizz_notions']}.
                     - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
+                    - Formule aussi quelques questions (1/3 des questions) de mise en application lorsque c'est possible, pour évaluer la capacité des étudiants à appliquer leurs connaissances.
+                    - Par exemple, si le cours porte sur la physique, tu pourrais poser des questions sur la résolution de problèmes pratiques.
                     - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents.
                     - Pour chaque question, cite la source exacte en indiquant le texte ou l'image spécifique et le numéro de page du document PDF.
                     """),
@@ -666,6 +668,8 @@ def generate_quizz(quizz_id):
                 - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
                 - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {quizz['notions']}.
                 - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
+                - Formule aussi quelques questions (1/3 des questions) de mise en application lorsque c'est possible, pour évaluer la capacité des étudiants à appliquer leurs connaissances.
+                - Par exemple, si le cours porte sur la physique, tu pourrais poser des questions sur la résolution de problèmes pratiques.
                 - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents.
                 - Pour chaque question, cite la source exacte en indiquant le texte ou l'image spécifique et le numéro de page du document PDF."""),
             ],
