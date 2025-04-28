@@ -24,6 +24,53 @@
         {% endif %}
     {% endwith %}
     <main>
+        <div class="lateral-menu">
+            <div class="app-title">
+                <img src="/static/icons/app-main-logo.png" alt="logo">
+                <div class="title">Quizz</div>
+            </div>
+            <div class="creation-button">
+                <a id="create-button" href="/create/1">Créer</a>
+            </div>
+            <div class="menu-container">
+                {% macro render_folder(folder) %}
+                    {% if folder.id in path %}
+                    {% set open = "active" %}
+                    {% set display = "display:block;" %}
+                    {% set arrow = "▲" %}
+                    {% else %}
+                    {% set open = "" %}
+                    {% set display = "display: none;" %}
+                    {% set arrow = "▼" %}
+                    {% endif %}
+                    <div class="folder">
+                        <div class="content {{open}}" data-id="{{folder.id}}">
+                            {% if folder.name == "Home" %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="{{ folder.color }}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12l9-8 9 8v8a2 2 0 0 1-2 2h-3v-6h-8v6H5a2 2 0 0 1-2-2v-8z" fill="{{ folder.color }}"/>
+                            </svg>                          
+                            {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="{{ folder.color }}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6c0-1.1.9-2 2-2h5l2 2h9c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V6z" fill="{{ folder.color }}"/>
+                            </svg>
+                            {% endif %}
+                            <div class="text" data-redirect-url="">{{ folder.name }}</div>
+                            {% if folder.folders %}
+                                <button class="toggle-button">{{arrow}}</button>
+                            {% endif %}
+                        </div>
+                        {% if folder.folders %}
+                            <div class="subfolder" style="{{display}}">
+                                {% for subfolder in folder.folders %}
+                                    {{ render_folder(subfolder) }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endmacro %}    
+                {{ render_folder(folder_data) }} 
+            </div>    
+        </div>
         <div class="main-container">
             <header>
                 <div class="title">Vos quizz</div>
@@ -32,16 +79,21 @@
                         <img src="/static/icons/icons8-disconnect-60.png">
                     </a>
                 </div>
-                <div class="creation-button">
-                    <a id="create-button" href="/create/1">Créer un quizz</a>
-                </div>
             </header>
-            {% if data|length == 0 %}
-            <div class="empty-container">
-                <img src="/static/icons/icons8-sad-100.png" alt="empty-box">
-                <div class="empty-message">Vous n'avez pas encore de quizz</div>
+            {% if current_folder.folders %}
+            <p class="subtitle">Dossiers</p>
+            <div class="folders-container">
+                {% for folder in current_folder.folders %}
+                    <div class="folder-container" style="background-color: {{folder.color}};" data-id="{{folder.id}}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6c0-1.1.9-2 2-2h5l2 2h9c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V6z" fill="#333"/>
+                        </svg>
+                        <div class="folder-title">{{folder.name}}</div>
+                    </div>
+                {% endfor %}
             </div>
             {% endif %}
+            <p class="subtitle">Quizz</p>
             <div class="quizzes-container">
                 {% for quizz in data %}
                 {% if quizz.to_highlight == True %}
@@ -49,6 +101,7 @@
                 {% else %}
                 {% set class_to_add = "" %}
                 {% endif %}
+                {% if quizz.id|int in current_folder.quizzes %}
                 <div class="quizz-container {{class_to_add}}" data-id="{{quizz.id}}">
                     <div class="delete_container" data-id="{{quizz.id}}">
                         <img src="/static/icons/icons8-delete-60.png" alt="delete">
@@ -73,8 +126,15 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
+            {% if current_folder.quizzes|length == 0 %}
+                <div class="empty-container">
+                    <img src="/static/icons/icons8-sad-100.png" alt="empty-box">
+                    <div class="empty-message">Vous n'avez pas encore de quizz</div>
+                </div>
+                {% endif %}
         </div>
     </main>
     <div class="create-popup" id="create-popup">
@@ -92,6 +152,89 @@
                 <img src="/static/imgs/quizz-extraction.png" alt="extraction">
                 <p>Extraction d'un quizz depuis une annale</p>
             </div>
+        </div>
+    </div>
+    <div class="create-folder-popup" id="create-folder-popup">
+        <div class="return_button" id="return_button_folder">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <h1>Créer un dossier</h1>
+        <form action="/create_folder/{{id_folder}}" method="POST">
+            <input type="text" name="folder_name" placeholder="Nom du dossier" required>
+            <div class="color-container">
+                <div>
+                    <input type="radio" id="color1" name="folder_color" value="#FFB3BA" required checked>
+                    <label for="color1">
+                        <span class="color-circle" style="background-color: #FFB3BA;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color2" name="folder_color" value="#FFDFBA" required>
+                    <label for="color2">
+                        <span class="color-circle" style="background-color: #FFDFBA;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color3" name="folder_color" value="#FFFFBA" required>
+                    <label for="color3">
+                        <span class="color-circle" style="background-color: #FFFFBA;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color4" name="folder_color" value="#BAFFC9" required>
+                    <label for="color4">
+                        <span class="color-circle" style="background-color: #BAFFC9;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color5" name="folder_color" value="#BAE1FF" required>
+                    <label for="color5">
+                        <span class="color-circle" style="background-color: #BAE1FF;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color6" name="folder_color" value="#D5BAFF" required>
+                    <label for="color6">
+                        <span class="color-circle" style="background-color: #D5BAFF;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color7" name="folder_color" value="#FFB3E6" required>
+                    <label for="color7">
+                        <span class="color-circle" style="background-color: #FFB3E6;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color8" name="folder_color" value="#FFDAC1" required>
+                    <label for="color8">
+                        <span class="color-circle" style="background-color: #FFDAC1;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color9" name="folder_color" value="#E2F0CB" required>
+                    <label for="color9">
+                        <span class="color-circle" style="background-color: #E2F0CB;"></span>
+                    </label>
+                </div>
+                <div>
+                    <input type="radio" id="color10" name="folder_color" value="#B2F0E6" required>
+                    <label for="color10">
+                        <span class="color-circle" style="background-color: #B2F0E6;"></span>
+                    </label>
+                </div>
+            </div>
+            <input type="submit" value="Créer">
+        </form>
+    </div>
+    <div class="choice-type-container">
+        <div class="choice-type" id="create_quizz">
+            <img src="/static/icons/icons8-question-50.png" alt="">
+            <div class="text">Créer un quizz</div>
+        </div>
+        <div class="choice-type" id="create_folder">
+            <img src="/static/icons/icons8-folder-50.png" alt="">
+            <div class="text">Créer un dossier</div>
         </div>
     </div>
     <script src="/static/js/home.js"></script>

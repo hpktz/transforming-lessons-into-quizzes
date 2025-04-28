@@ -130,11 +130,158 @@ def index():
                 'to_highlight': True if int(key) == query else False
             })
         
+        folder_json_path = os.path.join(app.root_path, 'static', 'folder.json')
+        if not os.path.exists(folder_json_path):
+            with open(folder_json_path, 'w') as folder_file:
+                json.dump(
+                    {
+                        'name': 'Root',
+                        'color': '#FFFFFF',
+                        'folders': [],
+                        'quizzes': [int(data['id']) for data in data_to_show]
+                    }, 
+                    folder_file, indent=4
+                )
+            folder_data = {
+                'name': 'Root',
+                'color': '#FFFFFF',
+                'folders': [],
+                'quizzes': [int(data['id']) for data in data_to_show]
+            }
+        else:
+            with open(folder_json_path, 'r') as folder_file:
+                folder_data = json.load(folder_file)
         
-        return render_template('home.html', data=data_to_show)
+        return render_template('home.html', data=data_to_show, folder_data=folder_data, current_folder=folder_data, path=[], id_folder=folder_data['id'])
     except Exception as e:
         logging.error(e)
         return render_template('home.html', data=[])
+    
+@app.route('/folder/<int:folder_id>', methods=['GET'])
+@login_required
+def folder(folder_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        def find_folder(folders, folder_id):
+            for folder in folders:
+                if folder['id'] == folder_id:
+                    return folder
+                else:
+                    found_folder = find_folder(folder['folders'], folder_id)
+                    if found_folder:
+                        return found_folder
+            return None
+        
+        current_folder = find_folder([folder_data], folder_id)
+        
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+        
+        data_to_show = []
+        for key in current_folder['quizzes']:
+            data_to_show.append({
+                'id': key,
+                'title': data[str(key)]['title'],
+                'color': data[str(key)]['color'],
+                'emoji': data[str(key)]['emoji'],
+                'size': data[str(key)]['size'],
+                'preview_path': url_for('static', filename=f'pdf_preview/preview_{key}.jpg'),
+                'quizz_amount': len(data[str(key)]['quizzes'])
+            })
+            
+        # Get all the id of the folders from the root folder to this folder (the path)
+        path = []
+        def get_path(folders, folder_id):
+            for folder in folders:
+                if folder['id'] == folder_id:
+                    path.append(folder['id'])
+                    return True
+                else:
+                    if get_path(folder['folders'], folder_id):
+                        path.append(folder['id'])
+                        return True
+            return False
+        get_path([folder_data], folder_id)
+        
+        return render_template('home.html', data=data_to_show, folder_data=folder_data, current_folder=current_folder, path=path, id_folder=folder_id)
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
+    
+@app.route('/create_folder/<int:current_folder_id>', methods=['POST'])
+@login_required
+def create_folder(current_folder_id):
+    try:
+        folder_name = request.form['folder_name']
+        folder_color = request.form['folder_color']
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        new_folder = {
+            'id': random.randint(1000000000000000, 9999999999999999),
+            'name': folder_name,
+            'color': folder_color,
+            'folders': [],
+            'quizzes': []
+        }
+        
+        if current_folder_id == 0:
+            folder_data['folders'].append(new_folder)
+        else:
+            def add_folder_to_parent(folders):
+                for folder in folders:
+                    if folder['id'] == current_folder_id:
+                        folder['folders'].append(new_folder)
+                        break
+                    else:
+                        add_folder_to_parent(folder['folders'])
+            
+            add_folder_to_parent([folder_data])
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
+            json.dump(folder_data, folder_file, indent=4)
+        
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
+    
+@app.route('/move_quizz/<int:quizz_id>/<int:folder_to_move_id>', methods=['POST'])
+@login_required
+def move_folder(quizz_id, folder_to_move_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        def remove_quizz_from_folder(folders):
+            for folder in folders:
+                if quizz_id in folder['quizzes']:
+                    folder['quizzes'].remove(quizz_id)
+                    break
+                else:
+                    remove_quizz_from_folder(folder['folders'])
+        
+        def move_quizz_to_folder(folders):
+            for folder in folders:
+                if folder['id'] == folder_to_move_id:
+                    folder['quizzes'].append(quizz_id)
+                    break
+                else:
+                    move_quizz_to_folder(folder['folders'])
+        
+        remove_quizz_from_folder([folder_data])
+        move_quizz_to_folder([folder_data])
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
+            json.dump(folder_data, folder_file, indent=4)
+        
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
     
 @app.route('/delete/<int:quizz_id>', methods=['GET'])
 @login_required

@@ -12,6 +12,7 @@
 /static/pdf_preview/*
 /flask_session/*
 /static/user_data.json
+/static/folder.json
 
 # Ignorer les fichiers temporaires
 /tmp/*
