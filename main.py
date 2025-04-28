@@ -137,7 +137,7 @@ def index():
                 json.dump(
                     {
                         'id': folder_id,
-                        'name': 'Root',
+                        'name': 'Home',
                         'color': '#333',
                         'folders': [],
                         'quizzes': [int(data['id']) for data in data_to_show]
@@ -146,7 +146,7 @@ def index():
                 )
             folder_data = {
                 'id': folder_id,
-                'name': 'Root',
+                'name': 'Home',
                 'color': '#333',
                 'folders': [],
                 'quizzes': [int(data['id']) for data in data_to_show]
