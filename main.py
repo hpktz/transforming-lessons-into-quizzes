@@ -132,19 +132,22 @@ def index():
         
         folder_json_path = os.path.join(app.root_path, 'static', 'folder.json')
         if not os.path.exists(folder_json_path):
+            folder_id = random.randint(1000000000000000, 9999999999999999)
             with open(folder_json_path, 'w') as folder_file:
                 json.dump(
                     {
+                        'id': folder_id,
                         'name': 'Root',
-                        'color': '#FFFFFF',
+                        'color': '#333',
                         'folders': [],
                         'quizzes': [int(data['id']) for data in data_to_show]
                     }, 
                     folder_file, indent=4
                 )
             folder_data = {
+                'id': folder_id,
                 'name': 'Root',
-                'color': '#FFFFFF',
+                'color': '#333',
                 'folders': [],
                 'quizzes': [int(data['id']) for data in data_to_show]
             }
@@ -294,6 +297,22 @@ def delete(quizz_id):
         
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
             json.dump(data, file, indent=4)
+            
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        def remove_quizz_from_folder(folders):
+            for folder in folders:
+                if quizz_id in folder['quizzes']:
+                    folder['quizzes'].remove(quizz_id)
+                    break
+            else:
+                remove_quizz_from_folder(folder['folders'])
+        
+        remove_quizz_from_folder([folder_data])
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
+            json.dump(folder_data, folder_file, indent=4)
             
         # Save the entire JSON data in cookies with 1 year expiration
         response = make_response(redirect(url_for('index')))
@@ -519,6 +538,14 @@ def create3():
 
         with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
             json.dump(quizz, file, indent=4)
+            
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+
+        folder_data['quizzes'].append(quizz_id)
+
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
+            json.dump(folder_data, folder_file, indent=4)
             
         del session['course_name']
         del session['course_level']
