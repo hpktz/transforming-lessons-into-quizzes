@@ -6,6 +6,7 @@ import os
 import random
 import logging
 import json
+import emoji
 
 from google import genai
 from google.genai import types
@@ -294,22 +295,101 @@ def delete(quizz_id):
             for folder in folders:
                 if quizz_id in folder['quizzes']:
                     folder['quizzes'].remove(quizz_id)
-                    break
+                    return folder['id']
             else:
-                remove_quizz_from_folder(folder['folders'])
+                folder_id = remove_quizz_from_folder(folder['folders'])
+                if folder_id:
+                    return folder_id
+                return None
         
-        remove_quizz_from_folder([folder_data])
+        folder_id = remove_quizz_from_folder([folder_data])
         
         with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
             json.dump(folder_data, folder_file, indent=4)
             
         # Save the entire JSON data in cookies with 1 year expiration
-        response = make_response(redirect(url_for('index')))
+        response = make_response(redirect(url_for('folder', folder_id=folder_id)))
         response.set_cookie('user_data', json.dumps(data), max_age=31536000)
         return response
         
     except Exception as e:
         logging.error(e)
+        return redirect(url_for('index'))
+    
+@app.route('/get_quizz/<int:quizz_id>', methods=['GET'])
+@login_required
+def get_quizz(quizz_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+        
+        quizz = data[str(quizz_id)]
+        
+        data_to_show = {
+            'id': quizz_id,
+            'title': quizz['title'],
+            'color': quizz['color'],
+            'emoji': quizz['emoji'],
+            'size': quizz['size'],
+            'preview_path': url_for('static', filename=f'pdf_preview/preview_{quizz_id}.jpg'),
+            'pdf_path': url_for('static', filename=f'user_files/file_quizz_{quizz_id}.pdf'),
+            'quizz_amount': len(quizz['quizzes']),
+            'quizzes': quizz['quizzes']
+        }
+        
+        return jsonify(data_to_show)
+    except Exception as e:
+        logging.error(e)
+        return jsonify({'error': 'Quizz not found'}), 404
+    
+@app.route('/modify/<int:quizz_id>', methods=['POST'])
+@login_required
+def modify_quizz(quizz_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as file:
+            data = json.load(file)
+        
+        quizz = data[str(quizz_id)]
+        
+        # Get the new values from the form
+        new_title = request.form['quizz_name']
+        new_color = request.form['quizz_color']
+        new_emoji = request.form['quizz_emoji']
+        
+        # Update the quizz data
+        quizz['title'] = new_title
+        quizz['color'] = new_color
+        quizz['emoji'] = new_emoji
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        def find_folder(folders, quizz_id):
+            for folder in folders:
+                if quizz_id in folder['quizzes']:
+                    return folder['id']
+                else:
+                    found_folder = find_folder(folder['folders'], quizz_id)
+                    if found_folder:
+                        return found_folder
+            return None
+        folder_id = find_folder([folder_data], quizz_id)
+        
+        # Check if the quizz emoji is valid
+        if not emoji.is_emoji(new_emoji):
+            flash("L'emoji fourni n'est pas valide", "error")
+            return redirect(url_for('folder', folder_id=folder_id))
+        
+        # Save the updated data back to the JSON file
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as file:
+            json.dump(data, file, indent=4)
+        
+        # Redirect to the right folder
+        return redirect(url_for('folder', folder_id=folder_id))
+    except Exception as e:
+        logging.error(e)
+    
+        flash("Une erreur est survenue lors de la modification du quiz", "error")
         return redirect(url_for('index'))
 
 @app.route('/create/1/<int:folder_id>', methods=['GET'])

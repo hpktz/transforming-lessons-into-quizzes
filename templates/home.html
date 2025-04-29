@@ -113,8 +113,8 @@
                 {% endif %}
                 {% if quizz.id|int in current_folder.quizzes %}
                 <div class="quizz-container {{class_to_add}}" data-id="{{quizz.id}}">
-                    <div class="delete_container" data-id="{{quizz.id}}">
-                        <img src="/static/icons/icons8-delete-60.png" alt="delete">
+                    <div class="option_container" data-id="{{quizz.id}}">
+                        <img src="/static/icons/icons8-menu-vertical-60.png" alt="menu">
                     </div>
                     <div class="illustration-container" style="background-color: {{quizz.color}};">
                         <div class="document-preview">
@@ -247,6 +247,106 @@
             <div class="text">Créer un dossier</div>
         </div>
     </div>
+
+    <div class="choice-quizz-container">
+        <div class="choice-quizz" id="modify_quizz">
+            <img src="/static/icons/icons8-modify-60.png" alt="">
+            <div class="text">Modifier le quizz</div>
+        </div>
+        <div class="choice-quizz" id="delete_quizz">
+            <img src="/static/icons/icons8-delete-48.png" alt="">
+            <div class="text">Supprimer le quizz</div>
+        </div>
+    </div>
+
+    <div class="modify-quizz-popup" id="modify-quizz-popup">
+        <div class="return_button" id="return_button_modify_quizz">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <h1>Modifier le quizz</h1>
+        <form action="/modify_quizz" method="POST">
+            <input type="hidden" id="quizz_id_modify" name="quizz_id" value="">
+            <div class="input-group">
+                <label for="quizz_name">Nom du quizz</label>
+                <input type="text" id="quizz_name_modify" name="quizz_name" placeholder="Nom du quizz" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="quizz_emoji">Emoji</label>
+                <input type="text" id="quizz_emoji_modify" name="quizz_emoji" placeholder="Emoji" maxlength="2">
+            </div>
+            
+            <div class="input-group">
+                <label>Couleur</label>
+                <div class="color-container">
+                    <div>
+                        <input type="radio" id="color1_modify" name="quizz_color" value="#FFFBF2" required>
+                        <label for="color1_modify">
+                            <span class="color-circle" style="background-color: #FFFBF2;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color2_modify" name="quizz_color" value="#FFF5E1" required>
+                        <label for="color2_modify">
+                            <span class="color-circle" style="background-color: #FFF5E1;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color3_modify" name="quizz_color" value="#FAF3DD" required>
+                        <label for="color3_modify">
+                            <span class="color-circle" style="background-color: #FAF3DD;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color4_modify" name="quizz_color" value="#F3E8EE" required>
+                        <label for="color4_modify">
+                            <span class="color-circle" style="background-color: #F3E8EE;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color5_modify" name="quizz_color" value="#E8F8F5" required>
+                        <label for="color5_modify">
+                            <span class="color-circle" style="background-color: #E8F8F5;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color6_modify" name="quizz_color" value="#E3F2FD" required>
+                        <label for="color6_modify">
+                            <span class="color-circle" style="background-color: #E3F2FD;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color7_modify" name="quizz_color" value="#F8E8FF" required>
+                        <label for="color7_modify">
+                            <span class="color-circle" style="background-color: #F8E8FF;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color8_modify" name="quizz_color" value="#FDF8F5" required>
+                        <label for="color8_modify">
+                            <span class="color-circle" style="background-color: #FDF8F5;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color9_modify" name="quizz_color" value="#F0F8FF" required>
+                        <label for="color9_modify">
+                            <span class="color-circle" style="background-color: #F0F8FF;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color10_modify" name="quizz_color" value="#FCF5E5" required>
+                        <label for="color10_modify">
+                            <span class="color-circle" style="background-color: #FCF5E5;"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="submit" value="Modifier">
+        </form>
+    </div>
+    
     <script src="/static/js/home.js"></script>
 </body>
 </html>

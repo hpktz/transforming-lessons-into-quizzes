@@ -1,5 +1,9 @@
 const quizz_containers = document.querySelectorAll('.quizz-container');
-const delete_buttons = document.querySelectorAll('.delete_container');
+const option_quizz_container = document.querySelectorAll('.option_container');
+
+const delete_quizz = document.querySelector('#delete_quizz');
+const modify_quizz = document.querySelector('#modify_quizz');
+const modify_quizz_close = document.querySelector('#return_button_modify_quizz');
 
 const create_button = document.querySelector('#create-button');
 const return_button = document.querySelector('#return_button');
@@ -40,6 +44,78 @@ quizz_containers.forEach(function(quizz_container) {
         const offsetY = event.clientY - rect.top;
         event.dataTransfer.setDragImage(quizz_container, offsetX, offsetY);
     });
+});
+
+option_quizz_container.forEach(function(option_container) {
+    option_container.addEventListener('click', function(event) {
+        event.stopPropagation(); // Prevent the click from propagating to the quizz container
+        const option_menu = document.querySelector('.choice-quizz-container');
+        option_menu.style.display = "block";
+        option_menu.style.left = `${event.clientX}px`;
+        option_menu.style.top = `${event.clientY}px`;
+
+        document.getElementById('delete_quizz').dataset.id = option_container.dataset.id;
+        document.getElementById('modify_quizz').dataset.id = option_container.dataset.id;
+
+        setTimeout(() => {
+            const body = document.querySelector('body');
+            body.addEventListener('click', function() {
+                option_menu.style.display = "none";
+            }, { once: true });
+        }, 10);
+    });
+});
+
+delete_quizz.addEventListener('click', function(event) {
+    window.location.href = `/delete/${delete_quizz.dataset.id}`;
+});
+
+modify_quizz.addEventListener('click', async function(event) {
+    event.preventDefault();
+    const modify_popup = document.querySelector('.modify-quizz-popup');
+    modify_popup.classList.add('active');
+
+    const main = document.querySelector('main');
+    main.style.pointerEvents = 'none';
+
+    const quizz_id = modify_quizz.dataset.id;
+    try {
+        const response = await fetch(`/get_quizz/${quizz_id}`);
+        const quizz_data = await response.json();
+
+        const form = modify_popup.querySelector('form');
+        form.action = `/modify/${quizz_id}`;
+
+        const text_field = document.getElementById('quizz_name_modify');
+        const emoji_field = document.getElementById('quizz_emoji_modify');
+        const color_inputs = document.getElementsByName('quizz_color');
+
+        text_field.value = quizz_data.title;
+        emoji_field.value = quizz_data.emoji;
+        color_inputs.forEach(function(input) {
+            console.log(input.value, quizz_data.color);
+            if (input.value === quizz_data.color) {
+                input.checked = true;
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error fetching quizz data:', error);
+        modify_popup.classList.remove('active');
+        main.style.pointerEvents = 'auto';
+        return;
+    }
+});
+
+modify_quizz_close.addEventListener('click', function(event) {
+    const modify_popup = document.querySelector('.modify-quizz-popup');
+    modify_popup.classList.remove('active');
+
+    // Unselect all the fields and reset the values
+    modify_popup.querySelector('form').reset();
+
+    const main = document.querySelector('main');
+    main.style.pointerEvents = 'auto';
 });
 
 folder_container.forEach(function(folder) {
@@ -116,14 +192,6 @@ path_item.forEach(function(path) {
         .catch(error => {
             console.error('Network error:', error);
         });
-    });
-});
-
-delete_buttons.forEach(function(delete_button) {
-    delete_button.addEventListener('click', function() {
-        const quizz_id = delete_button.dataset.id;
-
-        window.location.href = `/delete/${quizz_id}`;
     });
 });
 
