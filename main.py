@@ -110,7 +110,7 @@ def index():
             folder_data = {
                 'id': random.randint(1000000000000000, 9999999999999999),
                 'name': 'Home',
-                'color': '#FFFFFF',
+                'color': '#333333',
                 'folders': [],
                 'quizzes': quizzes
             }
@@ -123,7 +123,8 @@ def index():
         return redirect(url_for('folder', folder_id=folder_data['id']))
     except Exception as e:
         logging.error(e)
-        return render_template('home.html', error_mess="Une erreur est survenue lors du chargement de la page d'accueil.")
+        flash("Une erreur est survenue lors de la récupération des données", "error")
+        return render_template('home.html', data=[], folder_data={}, current_folder={}, path=[], path_info=[], id_folder=0)
     
 @app.route('/folder/<int:folder_id>', methods=['GET'])
 @login_required
