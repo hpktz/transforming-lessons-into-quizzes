@@ -261,7 +261,8 @@ main {
 
 /* ===== MENUS CONTEXTUELS ===== */
 .choice-type-container,
-.choice-quizz-container {
+.choice-quizz-container,
+.choice-folder-container {
     position: absolute;
     top: 50%;
     left: -50%;
@@ -275,7 +276,8 @@ main {
 }
 
 .choice-type-container .choice-type,
-.choice-quizz-container .choice-quizz {
+.choice-quizz-container .choice-quizz,
+.choice-folder-container .choice-folder {
     display: flex;
     gap: var(--spacing-l);
     align-items: center;
@@ -285,18 +287,21 @@ main {
 }
 
 .choice-type-container .choice-type:hover,
-.choice-quizz-container .choice-quizz:hover {
+.choice-quizz-container .choice-quizz:hover,
+.choice-folder-container .choice-folder:hover {
     background-color: var(--secondary-color);
 }
 
 .choice-type-container .choice-type img,
-.choice-quizz-container .choice-quizz img {
+.choice-quizz-container .choice-quizz img,
+.choice-folder-container .choice-folder img {
     width: 25px;
     height: 25px;
 }
 
 .choice-type-container .choice-type .text,
-.choice-quizz-container .choice-quizz .text {
+.choice-quizz-container .choice-quizz .text,
+.choice-folder-container .choice-folder .text {
     font-size: 1rem;
     font-weight: 500;
     color: var(--text-color);
@@ -311,7 +316,8 @@ main {
 }
 
 .folder-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 35px 1fr 35px;
     gap: var(--spacing-l);
     align-items: center;
     padding: var(--spacing-s) 7.5px;
@@ -329,6 +335,28 @@ main {
 .folder-container.drag-over {
     border: 5px dashed var(--text-color);
     filter: brightness(1);
+}
+
+
+.folder-container .option-folder-container {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--border-radius-circle);
+    padding: var(--spacing-xs);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all var(--transition-speed);
+}
+
+.folder-container .option-folder-container:hover {
+    background-color: var(--white);
+}
+
+.folder-container .option-folder-container img {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
 }
 
 /* ===== CONTENEUR PRINCIPAL ===== */
@@ -760,7 +788,8 @@ header .disconnect-button:hover {
     height: 25px;
     border-radius: var(--border-radius-m);
     cursor: pointer;
-    padding: 2.5px;
+    padding: 3px;
+    border: 2px solid transparent;
     border-radius: var(--border-radius-circle);
     transition: all var(--transition-speed);
 }
@@ -843,6 +872,98 @@ header .disconnect-button:hover {
 .modify-quizz-popup input[type="submit"]:hover {
     background-color: var(--primary-color-hover);
 }
+
+/* ===== POPUP DE CONFIRMATION DE SUPPRESSION ===== */
+
+.delete_folder_confirm {
+    position: fixed;
+    top: 150%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: var(--white);
+    padding: var(--spacing-l);
+    border-radius: var(--border-radius-m);
+    z-index: 100;
+    transition: all var(--transition-speed);
+}
+
+.delete_folder_confirm.active {
+    top: 50%;
+    box-shadow: var(--modal-shadow);
+}
+
+.delete_folder_confirm input[type="submit"] {
+    width: 100%;
+    padding: var(--spacing-s);
+    background-color: var(--error-color);
+    border: none;
+    outline: none;
+    border-radius: var(--border-radius-s);
+    cursor: pointer;
+    text-align: center;
+    transition: all var(--transition-speed);
+}
+
+.delete_folder_confirm input[type="submit"]:hover {
+    background-color: #ff0000;
+}
+
+/* ===== POPUP DE MODIFICATION D'UN DOSSIER ===== */
+
+.modify-folder-popup {
+    position: fixed;
+    top: 150%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: var(--white);
+    padding: var(--spacing-l);
+    border-radius: var(--border-radius-m);
+    z-index: 100;
+    transition: all var(--transition-speed);
+}
+
+.modify-folder-popup.active {
+    top: 50%;
+    box-shadow: var(--modal-shadow);
+}
+
+.modify-folder-popup input[type="text"] {
+    width: 100%;
+    padding: var(--spacing-s);
+    border-radius: var(--border-radius-s);
+    border: 1px solid var(--border-color);
+    margin-bottom: var(--spacing-m);
+    margin-top: var(--spacing-xs);
+}
+
+.modify-folder-popup .input-group {
+    margin-bottom: var(--spacing-m);
+}
+.modify-folder-popup label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+}
+
+.modify-folder-popup input[type="submit"] {
+    width: 100%;
+    padding: var(--spacing-s);
+    background-color: var(--primary-color);
+    border: none;
+    outline: none;
+    border-radius: var(--border-radius-s);
+    cursor: pointer;
+    text-align: center;
+    transition: all var(--transition-speed);
+    margin-top: var(--spacing-s);
+}
+
+.modify-folder-popup input[type="submit"]:hover {
+    background-color: var(--primary-color-hover);
+}
+
 
 /* ===== COMMIT HISTORY SECTION ===== */
 

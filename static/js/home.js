@@ -20,6 +20,17 @@ const path_item = document.querySelectorAll('.path-item');
 const update_button = document.querySelector('#update-button');
 const report_button = document.querySelector('#report-button');
 
+const option_folder_container = document.querySelectorAll('.option-folder-container');
+
+const delete_folder = document.querySelector('#delete_folder');
+const modify_folder = document.querySelector('#modify_folder');
+
+const delete_folder_confirm = document.querySelector('#delete_folder_confirm');
+const return_button_delete_folder = document.querySelector('#return_button_delete_folder');
+
+const modify_folder_popup = document.querySelector('#modify-folder-popup');
+const modify_folder_close = document.querySelector('#return_button_modify_folder');
+
 // Redirect to the quizz page when clicking on a quizz container
 
 quizz_containers.forEach(function(quizz_container) {
@@ -54,8 +65,24 @@ option_quizz_container.forEach(function(option_container) {
         event.stopPropagation(); // Prevent the click from propagating to the quizz container
         const option_menu = document.querySelector('.choice-quizz-container');
         option_menu.style.display = "block";
-        option_menu.style.left = `${event.clientX}px`;
-        option_menu.style.top = `${event.clientY}px`;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const menuWidth = option_menu.offsetWidth;
+        const menuHeight = option_menu.offsetHeight;
+
+        let left = event.clientX;
+        let top = event.clientY;
+
+        if (left + menuWidth > viewportWidth) {
+            left = viewportWidth - menuWidth - 10; // Adjust to avoid overflow
+        }
+
+        if (top + menuHeight > viewportHeight) {
+            top = viewportHeight - menuHeight - 10; // Adjust to avoid overflow
+        }
+
+        option_menu.style.left = `${left}px`;
+        option_menu.style.top = `${top}px`;
 
         document.getElementById('delete_quizz').dataset.id = option_container.dataset.id;
         document.getElementById('modify_quizz').dataset.id = option_container.dataset.id;
@@ -156,6 +183,105 @@ folder_container.forEach(function(folder) {
             console.error('Network error:', error);
         });
     });
+    folder.addEventListener('click', function(event) {
+        event.stopPropagation();
+
+        if (event.target.closest('.option-folder-container')) {
+            return; // Prevent redirection if clicking on the option container
+        }
+
+        const folder_id = folder.dataset.id;
+        window.location.href = `/folder/${folder_id}`;
+    });
+});
+
+option_folder_container.forEach(function(option_container) {
+    option_container.addEventListener('click', function(event) {
+        event.stopPropagation(); // Prevent the click from propagating to the folder container
+        const option_menu = document.querySelector('.choice-folder-container');
+        option_menu.style.display = "block";
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const menuWidth = option_menu.offsetWidth;
+        const menuHeight = option_menu.offsetHeight;
+
+        let left = event.clientX;
+        let top = event.clientY;
+
+        if (left + menuWidth > viewportWidth) {
+            left = viewportWidth - menuWidth - 10; // Adjust to avoid overflow
+        }
+
+        if (top + menuHeight > viewportHeight) {
+            top = viewportHeight - menuHeight - 10; // Adjust to avoid overflow
+        }
+
+        option_menu.style.left = `${left}px`;
+        option_menu.style.top = `${top}px`;
+
+        document.getElementById('delete_folder').dataset.id = option_container.dataset.id;
+        document.getElementById('modify_folder').dataset.id = option_container.dataset.id;
+
+        setTimeout(() => {
+            const body = document.querySelector('body');
+            body.addEventListener('click', function() {
+                option_menu.style.display = "none";
+            }, { once: true });
+        }, 10);
+    });
+});
+
+delete_folder.addEventListener('click', function(event) {
+    event.preventDefault();
+    const folder_id = delete_folder.dataset.id;
+    delete_folder_confirm.classList.add('active');
+
+    delete_folder_confirm.querySelector('form').action = `/delete_folder/${folder_id}`;
+    const main = document.querySelector('main');
+    main.style.pointerEvents = 'none';
+});
+
+return_button_delete_folder.addEventListener('click', function(event) {
+    event.preventDefault();
+    delete_folder_confirm.classList.remove('active');
+
+    // Unselect all the fields and reset the values
+    delete_folder_confirm.querySelector('form').reset();
+
+    const main = document.querySelector('main');
+    main.style.pointerEvents = 'auto';
+});
+
+modify_folder.addEventListener('click', async function(event) {
+    event.preventDefault();
+    const folder_id = modify_folder.dataset.id;
+
+    const response = await fetch(`/get_folder/${folder_id}`);
+    const folder_data = await response.json();
+
+    modify_folder_popup.classList.add('active');
+
+    modify_folder_popup.querySelector('form').action = `/modify_folder/${folder_id}`;
+    document.getElementById('folder_name_modify').value = folder_data.name;
+    const color_inputs = document.getElementsByName('folder_modify_color');
+    color_inputs.forEach(function(input) {
+        if (input.value === folder_data.color) {
+            input.checked = true;
+        }
+    });
+    const main = document.querySelector('main');
+    main.style.pointerEvents = 'none';
+});
+
+modify_folder_close.addEventListener('click', function(event) {
+    event.preventDefault();
+    modify_folder_popup.classList.remove('active');
+
+    // Unselect all the fields and reset the values
+    modify_folder_popup.querySelector('form').reset();
+
+    const main = document.querySelector('main');
+    main.style.pointerEvents = 'auto';
 });
 
 path_item.forEach(function(path) {  
@@ -202,8 +328,24 @@ create_button.addEventListener('click', function(event) {
     event.preventDefault();
     const create_popup = document.querySelector('.choice-type-container');
     create_popup.style.display = 'block';
-    create_popup.style.left = `${event.clientX}px`;
-    create_popup.style.top = `${event.clientY}px`;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const popupWidth = create_popup.offsetWidth;
+    const popupHeight = create_popup.offsetHeight;
+
+    let left = event.clientX;
+    let top = event.clientY;
+
+    if (left + popupWidth > viewportWidth) {
+        left = viewportWidth - popupWidth - 10; // Adjust to avoid overflow
+    }
+
+    if (top + popupHeight > viewportHeight) {
+        top = viewportHeight - popupHeight - 10; // Adjust to avoid overflow
+    }
+
+    create_popup.style.left = `${left}px`;
+    create_popup.style.top = `${top}px`;
 
     setTimeout(() => {
         const body = document.querySelector('body');
@@ -217,8 +359,24 @@ document.querySelector(".main-container").addEventListener('contextmenu', functi
     event.preventDefault();
     const create_popup = document.querySelector('.choice-type-container');
     create_popup.style.display = 'block';
-    create_popup.style.left = `${event.clientX}px`;
-    create_popup.style.top = `${event.clientY}px`;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const popupWidth = create_popup.offsetWidth;
+    const popupHeight = create_popup.offsetHeight;
+
+    let left = event.clientX;
+    let top = event.clientY;
+
+    if (left + popupWidth > viewportWidth) {
+        left = viewportWidth - popupWidth - 10; // Adjust to avoid overflow
+    }
+
+    if (top + popupHeight > viewportHeight) {
+        top = viewportHeight - popupHeight - 10; // Adjust to avoid overflow
+    }
+
+    create_popup.style.left = `${left}px`;
+    create_popup.style.top = `${top}px`;
 
     setTimeout(() => {
         const body = document.querySelector('body');
@@ -302,14 +460,6 @@ return_button_folder.addEventListener('click', function(event) {
 
     const main = document.querySelector('main');
     main.style.pointerEvents = 'auto';
-});
-
-folder_container.forEach(function(folder) {
-    folder.addEventListener('click', function(event) {
-        event.stopPropagation();
-        const folder_id = folder.dataset.id;
-        window.location.href = `/folder/${folder_id}`;
-    });
 });
 
 // Redirect to folder page when clicking on a folder container

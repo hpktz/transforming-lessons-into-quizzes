@@ -107,6 +107,9 @@
                             <path d="M3 6c0-1.1.9-2 2-2h5l2 2h9c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V6z" fill="#333"/>
                         </svg>
                         <div class="folder-title">{{folder.name}}</div>
+                        <div class="option-folder-container" data-id="{{folder.id}}">
+                            <img src="/static/icons/icons8-menu-vertical-60.png" alt="menu">
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -286,7 +289,6 @@
             </div>
             
             <div class="input-group">
-                <label>Couleur</label>
                 <div class="color-container">
                     <div>
                         <input type="radio" id="color1_modify" name="quizz_color" value="#FFFBF2" required>
@@ -353,6 +355,109 @@
             <input type="submit" value="Modifier">
         </form>
     </div>
+
+    <div class="choice-folder-container">
+        <div class="choice-folder" id="modify_folder">
+            <img src="/static/icons/icons8-modify-60.png" alt="">
+            <div class="text">Renommer le dossier</div>
+        </div>
+        <div class="choice-folder" id="delete_folder">
+            <img src="/static/icons/icons8-delete-48.png" alt="">
+            <div class="text">Supprimer le dossier</div>
+        </div>
+    </div>
+
+    <div class="delete_folder_confirm" id="delete_folder_confirm">
+        <div class="return_button" id="return_button_delete_folder">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <h1>Êtes-vous sûr de vouloir supprimer ce dossier ?</h1>
+        <p>
+            Supprimer un dossier supprimera également tous les quizz et sous-dossiers qu'il contient.
+        </p>
+        <form action="/delete_folder" method="POST">
+            <input type="submit" value="Supprimer">
+        </form>
+    </div>
+
+    <div class="modify-folder-popup" id="modify-folder-popup">
+        <div class="return_button" id="return_button_modify_folder">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <h1>Modifier le dossier</h1>
+        <form action="/modify_folder" method="POST">
+            <input type="hidden" id="folder_id_modify" name="folder_id" value="">
+            <input type="text" id="folder_name_modify" name="folder_name" placeholder="Nom du dossier" required>
+            <div class="color_choice">
+                <div class="color-container">
+                    <div>
+                        <input type="radio" id="color1_modify_folder" name="folder_modify_color" value="#FFB3BA" required>
+                        <label for="color1_modify_folder">
+                            <span class="color-circle" style="background-color: #FFB3BA;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color2_modify_folder" name="folder_modify_color" value="#FFDFBA" required>
+                        <label for="color2_modify_folder">
+                            <span class="color-circle" style="background-color: #FFDFBA;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color3_modify_folder" name="folder_modify_color" value="#FFFFBA" required>
+                        <label for="color3_modify_folder">
+                            <span class="color-circle" style="background-color: #FFFFBA;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color4_modify_folder" name="folder_modify_color" value="#BAFFC9" required>
+                        <label for="color4_modify_folder">
+                            <span class="color-circle" style="background-color: #BAFFC9;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color5_modify_folder" name="folder_modify_color" value="#BAE1FF" required>
+                        <label for="color5_modify_folder">
+                            <span class="color-circle" style="background-color: #BAE1FF;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color6_modify_folder" name="folder_modify_color" value="#D5BAFF" required>
+                        <label for="color6_modify_folder">
+                            <span class="color-circle" style="background-color: #D5BAFF;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color7_modify_folder" name="folder_modify_color" value="#FFB3E6" required>
+                        <label for="color7_modify_folder">
+                            <span class="color-circle" style="background-color: #FFB3E6;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color8_modify_folder" name="folder_modify_color" value="#FFDAC1" required>
+                        <label for="color8_modify_folder">
+                            <span class="color-circle" style="background-color: #FFDAC1;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color9_modify_folder" name="folder_modify_color" value="#E2F0CB" required>
+                        <label for="color9_modify_folder">
+                            <span class="color-circle" style="background-color: #E2F0CB;"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="color10_modify_folder" name="folder_modify_color" value="#B2F0E6" required>
+                        <label for="color10_modify_folder">
+                            <span class="color-circle" style="background-color: #B2F0E6;"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <input type="submit" value="Modifier">
+        </form>
+    </div>
+
     <script src="/static/js/home.js"></script>
 </body>
 </html>

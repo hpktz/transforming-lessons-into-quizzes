@@ -324,6 +324,14 @@ def delete(quizz_id):
         
         with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
             json.dump(folder_data, folder_file, indent=4)
+        
+        # Delete the preview image and the PDF file
+        preview_path = os.path.join(app.root_path, 'static', 'pdf_preview', f'preview_{quizz_id}.jpg')
+        pdf_path = os.path.join(app.root_path, 'static', 'user_files', f'file_quizz_{quizz_id}.pdf')
+        if os.path.exists(preview_path):
+            os.remove(preview_path)
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
             
         # Save the entire JSON data in cookies with 1 year expiration
         response = make_response(redirect(url_for('folder', folder_id=folder_id)))
@@ -409,6 +417,110 @@ def modify_quizz(quizz_id):
     
         flash("Une erreur est survenue lors de la modification du quiz", "error")
         return redirect(url_for('index'))
+    
+@app.route('/delete_folder/<int:folder_id>', methods=['POST'])
+@login_required
+def delete_folder(folder_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'r') as user_data_file:
+            user_data = json.load(user_data_file)
+        
+        def remove_folder_and_quizzes(folders):
+            for folder in folders:
+                if folder['id'] == folder_id:
+                    def delete_quizzes_recursively(subfolder):
+                        for subfolder_item in subfolder['folders']:
+                            delete_quizzes_recursively(subfolder_item)
+                        for quizz_id in subfolder['quizzes']:
+                            if str(quizz_id) in user_data:
+                                # Delete the preview image and PDF file
+                                preview_path = os.path.join(app.root_path, 'static', 'pdf_preview', f'preview_{quizz_id}.jpg')
+                                pdf_path = os.path.join(app.root_path, 'static', 'user_files', f'file_quizz_{quizz_id}.pdf')
+                                if os.path.exists(preview_path):
+                                    os.remove(preview_path)
+                                if os.path.exists(pdf_path):
+                                    os.remove(pdf_path)
+                                del user_data[str(quizz_id)]
+                    
+                    delete_quizzes_recursively(folder)
+                    folders.remove(folder)
+                    return True
+                else:
+                    if remove_folder_and_quizzes(folder['folders']):
+                        return True
+            return False
+        
+        remove_folder_and_quizzes([folder_data])
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
+            json.dump(folder_data, folder_file, indent=4)
+        
+        with open(os.path.join(app.root_path, 'static', 'user_data.json'), 'w') as user_data_file:
+            json.dump(user_data, user_data_file, indent=4)
+        
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
+    
+@app.route('/get_folder/<int:folder_id>', methods=['GET'])
+@login_required
+def get_folder(folder_id):
+    try:
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        def find_folder(folders, folder_id):
+            for folder in folders:
+                if folder['id'] == folder_id:
+                    return folder
+                else:
+                    found_folder = find_folder(folder['folders'], folder_id)
+                    if found_folder:
+                        return found_folder
+            return None
+        
+        current_folder = find_folder([folder_data], folder_id)
+        
+        return jsonify(current_folder)
+    except Exception as e:
+        logging.error(e)
+        return jsonify({'error': 'Folder not found'}), 404
+    
+@app.route('/modify_folder/<int:folder_id>', methods=['POST'])
+@login_required
+def modify_folder(folder_id):
+    try:
+        folder_name = request.form['folder_name']
+        folder_color = request.form['folder_modify_color']
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        
+        def find_and_modify_folder(folders):
+            for folder in folders:
+                if folder['id'] == folder_id:
+                    folder['name'] = folder_name
+                    folder['color'] = folder_color
+                    return True
+                else:
+                    if find_and_modify_folder(folder['folders']):
+                        return True
+            return False
+        
+        find_and_modify_folder([folder_data])
+        
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
+            json.dump(folder_data, folder_file, indent=4)
+        
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error(e)
+        return redirect(url_for('index'))
+
 
 @app.route('/create/1/<int:folder_id>', methods=['GET'])
 @login_required
