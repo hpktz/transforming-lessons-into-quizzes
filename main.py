@@ -765,8 +765,8 @@ def create3():
                 if folder['id'] == folder_id:
                     folder['quizzes'].append(quizz_id)
                     return True
-            if add_quizz_to_folder(folder['folders'], folder_id):
-                return True
+                if add_quizz_to_folder(folder['folders'], folder_id):
+                    return True
             return False
 
         add_quizz_to_folder([folder_data], session['folder_id'])
