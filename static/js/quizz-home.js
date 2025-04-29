@@ -73,7 +73,7 @@ show_attempts_buttons.forEach(function(show_attempts_button) {
 });
 
 return_button.addEventListener('click', function() {
-    window.location.href = '/';
+    window.location.href = '/folder/' + return_button.dataset.folder_id;
 });
 
 attempt_check_buttons.forEach(function(attempt_check_button) {

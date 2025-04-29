@@ -69,7 +69,11 @@
                     </div>
                 {% endmacro %}    
                 {{ render_folder(folder_data) }} 
-            </div>    
+            </div> 
+            <div class="update-button" id="update-button">
+                <img src="/static/icons/icons8-update-file-48.png" alt="update">
+                <div class="text">Dernières mises à jour</div>
+            </div>   
         </div>
         <div class="main-container">
             <header>
@@ -342,7 +346,6 @@
                     </div>
                 </div>
             </div>
-            
             <input type="submit" value="Modifier">
         </form>
     </div>

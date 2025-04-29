@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizz - Accueil</title>
+    <link rel="icon" href="/static/icons/app-main-logo.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/static/icons/app-main-logo.ico">
+    <link rel="stylesheet" href="/static/css/home-style.css">
+</head>
+<body>
+    <div class="commit-main">
+        <div class="return_button" id="return_button">
+            <img src="/static/icons/icons8-go-back-50.png" alt="return-button">
+            <div class="return_button_text">Retour</div>
+        </div>
+        <div class="commit-main-title">Derniers commits poussés sur <code>origin/main</code></div>
+        <div class="commit-main-container">
+            <div class="progress-bar"></div>
+            <div class="commit-container">
+                {% for commit in commits %}
+                    <div class="commit">
+                        <div class="point"></div>
+                        <div class="hash">{{ commit.hash }}</div>
+                        <div class="meta">Auteur : {{ commit.author }} | Date : {{ commit.date }}</div>
+                        <div class="message">{{ commit.message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("return_button").addEventListener("click", function() {
+            window.location.href = "/";
+        });
+    </script>
+</body>

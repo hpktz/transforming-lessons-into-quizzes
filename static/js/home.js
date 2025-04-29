@@ -17,6 +17,8 @@ const folder_container = document.querySelectorAll('.folder-container');
 
 const path_item = document.querySelectorAll('.path-item');
 
+const update_button = document.querySelector('#update-button');
+
 // Redirect to the quizz page when clicking on a quizz container
 
 quizz_containers.forEach(function(quizz_container) {
@@ -322,4 +324,8 @@ document.querySelectorAll('.content').forEach(function(content) {
         const folder_id = content.dataset.id;
         window.location.href = `/folder/${folder_id}`;
     });
+});
+
+update_button.addEventListener('click', function(event) {
+    window.location.href = '/update_report';
 });

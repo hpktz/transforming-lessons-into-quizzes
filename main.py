@@ -7,6 +7,7 @@ import random
 import logging
 import json
 import emoji
+import subprocess
 
 from google import genai
 from google.genai import types
@@ -458,26 +459,46 @@ def create3():
                         mime_type=files[0].mime_type,
                     ),
                     types.Part.from_text(text=f"""Instructions :
-                    - Génère un quiz de {session['quizz_size']} questions en te basant uniquement sur le contenu du PDF fourni.
-                    - Le quiz doit être au format {session['quizz_type']}.
-                    - Si il est a choix multiple, créer uniquement des questions avec plusieurs réponses correctes.
-                    - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
-                    - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
-                    - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
-                    - Applique un système de notation {session['quizz_notation']}.
-                    - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {session['quizz_notions']}.
-                    - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
-                    - Formule aussi quelques questions (1/3 des questions) de mise en application lorsque c'est possible, pour évaluer la capacité des étudiants à appliquer leurs connaissances.
-                    - Par exemple, si le cours porte sur la physique, tu pourrais poser des questions sur la résolution de problèmes pratiques.
-                    - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents.
-                    - Pour chaque question, cite la source exacte en indiquant le texte ou l'image spécifique et le numéro de page du document PDF.
+                    
+                    Instructions :
+                    Génère un quiz de {session['quizz_size']} questions. Le contenu du PDF fourni constitue la **base de connaissances UNIQUE et EXCLUSIVE** pour ce quiz. Ne fais appel à **AUCUNE** connaissance extérieure. Les questions doivent évaluer la compréhension et la capacité à **appliquer activement** les concepts, théories, méthodes et informations **tels qu'ils sont présentés ou synthétisés** dans ce document. Agis comme un expert du domaine qui s'appuie **uniquement** sur cette synthèse fournie pour créer l'évaluation. **Assure-toi de puiser des questions dans l'ensemble du document, couvrant sa totalité (du début à la fin) pour refléter une compréhension globale et non seulement des premières sections.**
+
+                    **Format et Structure du Quiz :**
+                    * Le quiz doit être au format {session['quizz_type']}.
+                    * Si le format est 'choix multiple', **toutes** les questions doivent comporter **plusieurs réponses correctes** parmi les options proposées. Le nombre total d'options proposées par question doit être **suffisant pour créer un défi réaliste (vise 4 à 6 options au total)**.
+                    * Si le format est 'mixte', inclus un **mélange équilibré** de questions à réponse unique et de questions à réponses multiples correctes (respectant la règle ci-dessus pour ces dernières).
+                    * **Important - Gestion des Questions Spécifiant un Nombre :** Même si une question demande explicitement d'identifier un nombre spécifique d'éléments (par exemple, "Quels sont les 2 principaux avantages de..."), **propose TOUJOURS un nombre total d'options supérieur à ce nombre** (par exemple, 4 ou 5 options au total), incluant les bonnes réponses et des distracteurs plausibles. Le but est de tester la reconnaissance des bons éléments parmi un choix plus large.
+                    * Indique les bonnes réponses en reprenant **textuellement et exactement** leur contenu (leurs valeurs), **jamais** leur position ou une lettre (ex : "Les bonnes réponses sont : 'Option pertinente 1', 'Autre option correcte'.").
+                    * Ne numérote **ni** les questions **ni** les propositions de réponse. Présente-les simplement les unes après les autres.
+                    * **Ordre des Questions : L'ordre des questions dans le quiz final doit être mélangé et ne doit PAS suivre l'ordre chronologique des chapitres ou des sections du PDF.**
+
+                    **Contenu et Style des Questions :**
+                    * **INSTRUCTION CRITIQUE : NE JAMAIS commencer ou formuler les questions en utilisant des tournures comme 'Selon le document...', 'D'après le PDF...', 'Dans le contexte du cours...', 'Comme vu dans le matériel...', etc.** Pose les questions **directement**, comme si tu t'adressais à un étudiant qui est **supposé connaître le contenu du PDF**. Le PDF est la **référence factuelle implicite et unique** pour déterminer la justesse des réponses. Par exemple, au lieu de 'Selon le document, quelle est la définition de X ?', demande 'Quelle est la définition de X ?' ou 'Comment X est-il défini ?'.
+                    * Applique le système de notation suivant : {session['quizz_notation']}.
+                    * Intègre **impérativement** des questions portant sur les notions spécifiques suivantes : {session['quizz_notions']}. Assure-toi que ces notions soient couvertes de manière significative et, si possible, via des questions d'application directe ou de raisonnement basées sur ces notions.
+                    * Formule des questions aux **styles variés** (ex: identification de la meilleure approche selon les critères du PDF, analyse comparative des méthodes décrites, diagnostic basé sur des symptômes/données présentés dans le PDF, calcul/interprétation en appliquant une formule/méthode du PDF, prise de décision dans un contexte décrit s'inspirant du PDF) et de difficulté progressive.
+                    * **Consacre une part significative (vise entre 1/3 et 1/2 du quiz) à des questions de mise en application pratique et de raisonnement.** Ces questions doivent exiger l'**utilisation active et l'inférence** à partir des connaissances du PDF :
+                        * Propose des **scénarios concrets**, des **études de cas simplifiées**, ou des **ensembles de données** (inspirés **strictement** du PDF ou conformes aux exemples qu'il donne) et pose des questions du type : "Face à cette situation [description fidèle à un contexte du PDF], quelles actions seraient prioritaires en appliquant les principes de [concept du PDF] ?", "Analysez ces données [données du type de celles du PDF] : quelles conclusions spécifiques peut-on tirer concernant [phénomène décrit dans le PDF] en se basant **uniquement** sur les informations fournies ?", "Étant donné [paramètres spécifiques issus du PDF], quel serait le résultat/calcul exact selon la méthode [nom de la méthode du PDF] ?", "Quel(s) outil(s) ou technique(s) **décrit(s) dans le document** serai(en)t le(s) plus pertinent(s) pour aborder [problème spécifique pouvant être résolu avec les infos du PDF] ?".
+                        * Ne te contente pas de demander si une application est possible, mais formule un problème ou une situation où l'étudiant doit *mobiliser activement* la connaissance issue du PDF pour y répondre.
+                    * Veille à ce que **toutes** les propositions de réponse (correctes ET incorrectes) soient **plausibles dans le contexte du sujet traité par le PDF**, clairement formulées et équilibrées en termes de style et de longueur. Les distracteurs (réponses incorrectes) doivent être **pertinents** mais **indiscutablement faux ou non supportés par le contenu spécifiques du PDF**. Ils peuvent représenter des erreurs communes ou des concepts proches mais distincts de ceux présentés dans le document.
+
+                    **Variété et Positionnement des Réponses :**
+                    * **Pour chaque question à choix multiple ou mixte, positionne la ou les bonnes réponses de manière aléatoire parmi les options proposées.** Évite **toute** tendance systématique (ne pas toujours mettre la bonne réponse en premier, dernier, etc.).
+
+                    **Sourçage et Justification Rigoureux :**
+                    * Pour **chaque** question :
+                        * Fournis une référence précise au PDF : indique le **numéro de page exact**.
+                        * Indique la **section/le concept clé pertinent(s)** (texte, image, tableau, formule) qui **justifie(nt) SANS AMBIGUÏTÉ la question ET la ou les bonnes réponses choisies**.
+                        * Pour les questions d'application, la référence doit pointer vers le(s) concept(s) ou la méthode du PDF qui sont **directement appliqués** dans le scénario ou le problème posé.
+                        * La référence doit permettre de comprendre **pourquoi les options correctes le sont, et pourquoi les distracteurs sont incorrects, EN SE BASANT EXCLUSIVEMENT SUR LE PDF**.
+                    
                     """),
                 ],
             ),
         ]
         
         generate_content_config = types.GenerateContentConfig(
-            temperature=1,
+            temperature=1, # Garder une certaine créativité mais la rigueur vient des instructions
             top_p=0.95,
             top_k=40,
             max_output_tokens=8192,
@@ -488,55 +509,55 @@ def create3():
                 properties = {
                     "emoji": genai.types.Schema(
                         type = genai.types.Type.STRING,
-                        description = "Emoji représentant l'objet",
+                        description = "Emoji pertinent représentant le sujet principal du quiz.",
                     ),
                     "title": genai.types.Schema(
                         type = genai.types.Type.STRING,
-                        description = "Titre du quiz",
+                        description = "Titre concis et informatif pour le quiz, basé sur le sujet du PDF.",
                     ),
                     "questions": genai.types.Schema(
                         type = genai.types.Type.ARRAY,
-                        description = "Liste des questions",
+                        description = "Liste des questions composant le quiz.",
                         items = genai.types.Schema(
                             type = genai.types.Type.OBJECT,
-                            required = ["question", "answers", "correct"],
+                            required = ["question", "answers", "correct", "explanation", "sources"],
                             properties = {
                                 "question": genai.types.Schema(
                                     type = genai.types.Type.STRING,
-                                    description = "Texte de la question",
+                                    description = "Texte de la question, formulé directement (SANS 'Selon le document...'), évaluant la compréhension ou l'application du contenu du PDF.",
                                 ),
                                 "answers": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
-                                    description = "Liste des réponses possibles",
+                                    description = "Liste des réponses possibles (options). Doit inclure les réponses correctes et des distracteurs plausibles mais incorrects selon le PDF. Viser 4-6 options au total.",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.STRING,
                                     ),
                                 ),
                                 "correct": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
-                                    description = "Liste des réponses correctes (peut contenir les valeurs ou les index)",
+                                    description = "Liste contenant UNIQUEMENT le texte exact (valeur textuelle) de la ou des réponses correctes, telles qu'elles apparaissent dans la liste 'answers'.",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.STRING,
                                     ),
                                 ),
                                 "explanation": genai.types.Schema(
                                     type = genai.types.Type.STRING,
-                                    description = "Explication de la réponse",
+                                    description = "Explication concise justifiant pourquoi la/les réponse(s) sont correctes, en se référant explicitement aux concepts ou informations du PDF.",
                                 ),
                                 "sources": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
-                                    description = "Liste des sources",
+                                    description = "Liste des références précises dans le PDF justifiant la question et la/les réponses correctes.",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.OBJECT,
                                         required = ["source", "page"],
                                         properties = {
                                             "source": genai.types.Schema(
                                                 type = genai.types.Type.STRING,
-                                                description = "Source de la question",
+                                                description = "Concept clé, section, ou élément spécifique du PDF (ex: 'Définition du Modèle X', 'Tableau 3.1', 'Méthode de calcul Y') justifiant la réponse.",
                                             ),
                                             "page": genai.types.Schema(
                                                 type = genai.types.Type.INTEGER,
-                                                description = "Numéro de page de la source",
+                                                description = "Numéro de page exact dans le PDF où trouver la justification.",
                                             ),
                                         },
                                     ),
@@ -547,13 +568,11 @@ def create3():
                 },
             ),
             system_instruction=[
-                types.Part.from_text(text=f"""Contexte : Tu es un expert dans le domaine de {session['course_name']}, et tu es enseignant(e) à 
-            un niveau {session['course_level']}. Ton objectif est d’évaluer les compétences des étudiants à 
-            travers un quiz rigoureux et pertinent basé exclusivement sur le contenu du cours fourni en PDF.
-            Format attendu :
-            - Chaque question doit être numérotée.
-            - Pour les QCM et choix unique, indique clairement les bonnes réponses.
-            - Pour chaque question, ajoute une courte justification/explanation pour renforcer l’apprentissage. """),
+                types.Part.from_text(text=f"""**Contexte Impératif :** Positionne-toi comme un(e) enseignant(e) spécialiste rigoureux de {session['course_name']}, 
+                    créant une évaluation pour des étudiants de niveau {session['course_level']}. Ton objectif UNIQUE est de créer un quiz qui évalue **précisément et 
+                    exclusivement** la compréhension et la capacité d'application du contenu du PDF fourni. Tu ne dois utiliser **AUCUNE autre information ou connaissance**. 
+                    La **fidélité absolue** au document source et la **pertinence pédagogique** des questions et des distracteurs (basés uniquement sur le PDF) sont tes priorités 
+                    absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté."""),
             ],
         )
 
@@ -701,18 +720,46 @@ def extract2():
                         file_uri=files[1].uri,
                         mime_type="application/pdf",
                     ),
-                    types.Part.from_text(text="""Instructions :
-                    - Tu reçois deux documents PDF :
-                        1. Le **premier document** est un cours (support de référence).
-                        2. Le **second document** est un quiz (avec des questions et des choix de réponses).
-                    - Tu dois extraire les informations du premier document en suivant le JSON donné.
-                    - Du document, tu en déduit un titre, un emoji, et un type (QCM, QCU, ou mixte).
-                    - Tu dois extraire du document toutes les questions posées (sans le numero de la question).
-                    - Pour chaque questions posée, tu dois en extraire les réponse possibles (sans le numero de la reponse possible).
-                    - Maintant, pour chaque question posée, tu dois trouver la bonne réponse parmis les réponses possibles.
-                    - Pour trouver la bonne réponse parmis les réponses possibles, tu dois te baser sur le contenu du premier document.
-                    - Pour chaque question, tu dois aussi trouver une explication de la réponse correcte (en français).
-                    - Pour chaque question, tu dois aussi trouver la source exacte dans le cours (texte ou image spécifique) et le numéro de page du document PDF.
+                    types.Part.from_text(text="""
+                    **Instructions Détaillées :**
+
+                    **Contexte :** Tu vas traiter deux documents PDF fournis simultanément.
+                        1.  **PDF 1 (Cours) :** C'est le support de cours officiel. Il constitue la **source de vérité UNIQUE et EXCLUSIVE** pour toute information, définition, et justification.
+                        2.  **PDF 2 (Quiz Existant) :** C'est un quiz pré-existant contenant des questions et des propositions de réponses. Ton rôle est d'extraire son contenu, de le vérifier par rapport au PDF 1, et de le structurer.
+
+                    **Tâches à réaliser IMPÉRATIVEMENT :**
+
+                    1.  **Analyse Initiale du Cours (PDF 1) :**
+                        * Détermine un **titre pertinent** résumant le sujet principal du PDF 1.
+                        * Propose un **emoji** représentant ce sujet.
+
+                    2.  **Extraction Exhaustive du Quiz Existant (PDF 2) :**
+                        * **Extraction Intégrale :** Extrais **systématiquement et intégralement TOUTES** les questions présentes dans le PDF 2, **sans exception**. Ignore toute numérotation (ex: "1.", "Q1.") associée aux questions lors de l'extraction du texte de la question elle-même.
+                        * Pour **chaque** question extraite : Extrais **toutes** les propositions de réponse qui lui sont associées dans le PDF 2. Ignore toute lettre ou numéro (ex: "a)", "1)") associé aux options lors de l'extraction du texte de l'option elle-même.
+
+                    3.  **Validation et Enrichissement via le Cours (PDF 1) :**
+                        * Pour **chaque** question extraite du PDF 2 :
+                            * **Recherche Approfondie dans PDF 1 :** Pour déterminer la ou les bonnes réponses et fournir la justification, consulte **l'intégralité** du contenu du PDF 1 (Cours). Ne te limite **jamais** aux premières pages ou sections. Tu dois chercher partout où l'information pertinente pourrait se trouver.
+                            * **Identification de la/des Bonne(s) Réponse(s) :** En te basant **strictement et uniquement** sur les informations présentes dans le PDF 1, identifie parmi les options extraites du PDF 2 pour cette question, **la ou les option(s)** qui sont factuellement correctes.
+                                * **Important :** Il peut y avoir une seule bonne réponse (QCU) ou plusieurs bonnes réponses (QCM). Ta tâche est de trouver toutes celles qui sont correctes selon PDF 1.
+                                * Récupère le **texte exact et complet** de chaque option correcte identifiée.
+                            * **Génération de l'Explication :** Rédige une **explication claire, précise et concise** (en français) qui justifie pourquoi la ou les réponse(s) sélectionnée(s) est/sont correcte(s). Cette explication doit se fonder **exclusivement** sur les concepts, faits, données ou raisonnements présents dans le PDF 1. Ne fais **aucune** inférence non supportée par le PDF 1.
+                            * **Sourçage Rigoureux dans PDF 1 :** Pour chaque question, fournis une référence **précise et vérifiable** dans le PDF 1 qui justifie **sans ambiguïté** la ou les réponses correctes. Indique :
+                                * Le **numéro de page exact** dans le PDF 1.
+                                * La **section/le concept clé/le texte spécifique/l'image/le tableau pertinent(s)** du PDF 1 utilisé(s) pour la justification.
+
+                    4.  **Formatage de la Sortie JSON :**
+                        * Structure **l'intégralité** de la sortie conformément au **schéma JSON défini précédemment** (celui utilisé pour la génération de quiz, avec `emoji`, `title`, `questions` [{`question`, `answers`, `correct`, `explanation`, `sources` [{`source`, `page`}]}]).
+                        * La liste `questions` dans le JSON contiendra **toutes** les questions extraites du PDF 2, dans l'ordre où elles apparaissent dans ce PDF 2, mais enrichies avec les réponses correctes, explications et sources validées via le PDF 1.
+                        * Le champ `correct` dans chaque objet question contiendra une liste contenant le texte exact d'une ou plusieurs options correctes.
+                        * Le titre et l'emoji déterminés à partir du PDF 1 doivent être placés dans les champs `title` et `emoji` à la racine du JSON.
+
+                    **Points Cruciaux à Respecter :**
+                    * **Fidélité Absolue au PDF 1 :** La validation des réponses et la génération des explications/sources dépendent **exclusivement** du contenu du PDF 1.
+                    * **Exhaustivité pour PDF 2 :** **Aucune** question ou option présente dans le PDF 2 ne doit être omise lors de l'extraction.
+                    * **Pas de numérotation héritée :** Le texte extrait pour les questions et les réponses ne doit pas inclure les numéros ou lettres originaux du PDF 2.
+                    * **Clarté et Précision :** Les explications et les sources doivent être claires, précises et directement liées au contenu du PDF 1.                         
+                
                     """)
                 ],
             ),
@@ -916,7 +963,21 @@ def quizz(quizz_id):
             'quizzes': quizz['quizzes']
         }
         
-        return render_template('quizz.html', data=data_to_show)
+        # Find the id of the folder where the quizz is located
+        with open(os.path.join(app.root_path, 'static', 'folder.json'), 'r') as folder_file:
+            folder_data = json.load(folder_file)
+        def find_quizz_in_folder(folders, quizz_id):
+            for folder in folders:
+                if quizz_id in folder['quizzes']:
+                    return folder['id']
+                if 'folders' in folder:
+                    found = find_quizz_in_folder(folder['folders'], quizz_id)
+                    if found:
+                        return found
+            return None
+        folder_id = find_quizz_in_folder([folder_data], quizz_id)
+        
+        return render_template('quizz.html', data=data_to_show, folder_id=folder_id)
     except Exception as e:
         logging.error(e)
         return redirect(url_for('index'))
@@ -946,26 +1007,46 @@ def generate_quizz(quizz_id):
                 file_uri=files[0].uri,
                 mime_type=files[0].mime_type,
                 ),
-                types.Part.from_text(text=f"""Instructions :
-                - Génère un quiz de {quizz['size']} questions en te basant uniquement sur le contenu du PDF fourni.
-                - Le quiz doit être au format {quizz['type']}.
-                - Applique un système de notation {quizz['notation']}.
-                - Si il est a choix multiple, créer uniquement des questions avec plusieurs réponses correctes.
-                - Si il est mixte, créer des questions avec plusieurs réponses correctes et des questions à choix unique.
-                - Quand tu indique les bonnes réponses, indique les en reprenant les valeurs des réponses.
-                - Quand tu propose des réponse, propose juste les réponse sans numéroter. De même pour les questions.
-                - Intègre obligatoirement des questions sur les notions spécifiques suivantes : {quizz['notions']}.
-                - Formule des questions variées, allant des notions de base aux concepts avancés, pour tester la compréhension et la réflexion critique des étudiants.
-                - Formule aussi quelques questions (1/3 des questions) de mise en application lorsque c'est possible, pour évaluer la capacité des étudiants à appliquer leurs connaissances.
-                - Par exemple, si le cours porte sur la physique, tu pourrais poser des questions sur la résolution de problèmes pratiques.
-                - Assure-toi que les propositions de réponse sont crédibles et bien équilibrées, avec des distracteurs pertinents.
-                - Pour chaque question, cite la source exacte en indiquant le texte ou l'image spécifique et le numéro de page du document PDF."""),
+                types.Part.from_text(text=f"""
+                Instructions :
+                Génère un quiz de {session['quizz_size']} questions. Le contenu du PDF fourni constitue la **base de connaissances UNIQUE et EXCLUSIVE** pour ce quiz. Ne fais appel à **AUCUNE** connaissance extérieure. Les questions doivent évaluer la compréhension et la capacité à **appliquer activement** les concepts, théories, méthodes et informations **tels qu'ils sont présentés ou synthétisés** dans ce document. Agis comme un expert du domaine qui s'appuie **uniquement** sur cette synthèse fournie pour créer l'évaluation. **Assure-toi de puiser des questions dans l'ensemble du document, couvrant sa totalité (du début à la fin) pour refléter une compréhension globale et non seulement des premières sections.**
+
+                **Format et Structure du Quiz :**
+                * Le quiz doit être au format {session['quizz_type']}.
+                * Si le format est 'choix multiple', **toutes** les questions doivent comporter **plusieurs réponses correctes** parmi les options proposées. Le nombre total d'options proposées par question doit être **suffisant pour créer un défi réaliste (vise 4 à 6 options au total)**.
+                * Si le format est 'mixte', inclus un **mélange équilibré** de questions à réponse unique et de questions à réponses multiples correctes (respectant la règle ci-dessus pour ces dernières).
+                * **Important - Gestion des Questions Spécifiant un Nombre :** Même si une question demande explicitement d'identifier un nombre spécifique d'éléments (par exemple, "Quels sont les 2 principaux avantages de..."), **propose TOUJOURS un nombre total d'options supérieur à ce nombre** (par exemple, 4 ou 5 options au total), incluant les bonnes réponses et des distracteurs plausibles. Le but est de tester la reconnaissance des bons éléments parmi un choix plus large.
+                * Indique les bonnes réponses en reprenant **textuellement et exactement** leur contenu (leurs valeurs), **jamais** leur position ou une lettre (ex : "Les bonnes réponses sont : 'Option pertinente 1', 'Autre option correcte'.").
+                * Ne numérote **ni** les questions **ni** les propositions de réponse. Présente-les simplement les unes après les autres.
+                * **Ordre des Questions : L'ordre des questions dans le quiz final doit être mélangé et ne doit PAS suivre l'ordre chronologique des chapitres ou des sections du PDF.**
+
+                **Contenu et Style des Questions :**
+                * **INSTRUCTION CRITIQUE : NE JAMAIS commencer ou formuler les questions en utilisant des tournures comme 'Selon le document...', 'D'après le PDF...', 'Dans le contexte du cours...', 'Comme vu dans le matériel...', etc.** Pose les questions **directement**, comme si tu t'adressais à un étudiant qui est **supposé connaître le contenu du PDF**. Le PDF est la **référence factuelle implicite et unique** pour déterminer la justesse des réponses. Par exemple, au lieu de 'Selon le document, quelle est la définition de X ?', demande 'Quelle est la définition de X ?' ou 'Comment X est-il défini ?'.
+                * Applique le système de notation suivant : {session['quizz_notation']}.
+                * Intègre **impérativement** des questions portant sur les notions spécifiques suivantes : {session['quizz_notions']}. Assure-toi que ces notions soient couvertes de manière significative et, si possible, via des questions d'application directe ou de raisonnement basées sur ces notions.
+                * Formule des questions aux **styles variés** (ex: identification de la meilleure approche selon les critères du PDF, analyse comparative des méthodes décrites, diagnostic basé sur des symptômes/données présentés dans le PDF, calcul/interprétation en appliquant une formule/méthode du PDF, prise de décision dans un contexte décrit s'inspirant du PDF) et de difficulté progressive.
+                * **Consacre une part significative (vise entre 1/3 et 1/2 du quiz) à des questions de mise en application pratique et de raisonnement.** Ces questions doivent exiger l'**utilisation active et l'inférence** à partir des connaissances du PDF :
+                    * Propose des **scénarios concrets**, des **études de cas simplifiées**, ou des **ensembles de données** (inspirés **strictement** du PDF ou conformes aux exemples qu'il donne) et pose des questions du type : "Face à cette situation [description fidèle à un contexte du PDF], quelles actions seraient prioritaires en appliquant les principes de [concept du PDF] ?", "Analysez ces données [données du type de celles du PDF] : quelles conclusions spécifiques peut-on tirer concernant [phénomène décrit dans le PDF] en se basant **uniquement** sur les informations fournies ?", "Étant donné [paramètres spécifiques issus du PDF], quel serait le résultat/calcul exact selon la méthode [nom de la méthode du PDF] ?", "Quel(s) outil(s) ou technique(s) **décrit(s) dans le document** serai(en)t le(s) plus pertinent(s) pour aborder [problème spécifique pouvant être résolu avec les infos du PDF] ?".
+                    * Ne te contente pas de demander si une application est possible, mais formule un problème ou une situation où l'étudiant doit *mobiliser activement* la connaissance issue du PDF pour y répondre.
+                * Veille à ce que **toutes** les propositions de réponse (correctes ET incorrectes) soient **plausibles dans le contexte du sujet traité par le PDF**, clairement formulées et équilibrées en termes de style et de longueur. Les distracteurs (réponses incorrectes) doivent être **pertinents** mais **indiscutablement faux ou non supportés par le contenu spécifiques du PDF**. Ils peuvent représenter des erreurs communes ou des concepts proches mais distincts de ceux présentés dans le document.
+
+                **Variété et Positionnement des Réponses :**
+                * **Pour chaque question à choix multiple ou mixte, positionne la ou les bonnes réponses de manière aléatoire parmi les options proposées.** Évite **toute** tendance systématique (ne pas toujours mettre la bonne réponse en premier, dernier, etc.).
+
+                **Sourçage et Justification Rigoureux :**
+                * Pour **chaque** question :
+                    * Fournis une référence précise au PDF : indique le **numéro de page exact**.
+                    * Indique la **section/le concept clé pertinent(s)** (texte, image, tableau, formule) qui **justifie(nt) SANS AMBIGUÏTÉ la question ET la ou les bonnes réponses choisies**.
+                    * Pour les questions d'application, la référence doit pointer vers le(s) concept(s) ou la méthode du PDF qui sont **directement appliqués** dans le scénario ou le problème posé.
+                    * La référence doit permettre de comprendre **pourquoi les options correctes le sont, et pourquoi les distracteurs sont incorrects, EN SE BASANT EXCLUSIVEMENT SUR LE PDF**.
+                
+                """),
             ],
             ),
         ]
         
         generate_content_config = types.GenerateContentConfig(
-            temperature=1,
+            temperature=1, # Garder une certaine créativité mais la rigueur vient des instructions
             top_p=0.95,
             top_k=40,
             max_output_tokens=8192,
@@ -976,55 +1057,55 @@ def generate_quizz(quizz_id):
                 properties = {
                     "emoji": genai.types.Schema(
                         type = genai.types.Type.STRING,
-                        description = "Emoji représentant l'objet",
+                        description = "Emoji pertinent représentant le sujet principal du quiz.",
                     ),
                     "title": genai.types.Schema(
                         type = genai.types.Type.STRING,
-                        description = "Titre du quiz",
+                        description = "Titre concis et informatif pour le quiz, basé sur le sujet du PDF.",
                     ),
                     "questions": genai.types.Schema(
                         type = genai.types.Type.ARRAY,
-                        description = "Liste des questions",
+                        description = "Liste des questions composant le quiz.",
                         items = genai.types.Schema(
                             type = genai.types.Type.OBJECT,
-                            required = ["question", "answers", "correct"],
+                            required = ["question", "answers", "correct", "explanation", "sources"],
                             properties = {
                                 "question": genai.types.Schema(
                                     type = genai.types.Type.STRING,
-                                    description = "Texte de la question",
+                                    description = "Texte de la question, formulé directement (SANS 'Selon le document...'), évaluant la compréhension ou l'application du contenu du PDF.",
                                 ),
                                 "answers": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
-                                    description = "Liste des réponses possibles",
+                                    description = "Liste des réponses possibles (options). Doit inclure les réponses correctes et des distracteurs plausibles mais incorrects selon le PDF. Viser 4-6 options au total.",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.STRING,
                                     ),
                                 ),
                                 "correct": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
-                                    description = "Liste des réponses correctes (peut contenir les valeurs ou les index)",
+                                    description = "Liste contenant UNIQUEMENT le texte exact (valeur textuelle) de la ou des réponses correctes, telles qu'elles apparaissent dans la liste 'answers'.",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.STRING,
                                     ),
                                 ),
                                 "explanation": genai.types.Schema(
                                     type = genai.types.Type.STRING,
-                                    description = "Explication de la réponse",
+                                    description = "Explication concise justifiant pourquoi la/les réponse(s) sont correctes, en se référant explicitement aux concepts ou informations du PDF.",
                                 ),
                                 "sources": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
-                                    description = "Liste des sources",
+                                    description = "Liste des références précises dans le PDF justifiant la question et la/les réponses correctes.",
                                     items = genai.types.Schema(
                                         type = genai.types.Type.OBJECT,
                                         required = ["source", "page"],
                                         properties = {
                                             "source": genai.types.Schema(
                                                 type = genai.types.Type.STRING,
-                                                description = "Source de la question",
+                                                description = "Concept clé, section, ou élément spécifique du PDF (ex: 'Définition du Modèle X', 'Tableau 3.1', 'Méthode de calcul Y') justifiant la réponse.",
                                             ),
                                             "page": genai.types.Schema(
                                                 type = genai.types.Type.INTEGER,
-                                                description = "Numéro de page de la source",
+                                                description = "Numéro de page exact dans le PDF où trouver la justification.",
                                             ),
                                         },
                                     ),
@@ -1035,14 +1116,11 @@ def generate_quizz(quizz_id):
                 },
             ),
             system_instruction=[
-                types.Part.from_text(text=f"""Contexte : Tu es un expert dans le domaine de {quizz['name']}, et tu es enseignant(e) à 
-            un niveau {quizz['level']}. Ton objectif est d’évaluer les compétences des étudiants à 
-            travers un quiz rigoureux et pertinent basé exclusivement sur le contenu du cours fourni en PDF.
-            Format attendu :
-            - Chaque question doit être numérotée.
-            - Pour les QCM et choix unique, indique clairement les bonnes réponses.
-            - Pour chaque question, ajoute une courte justification/explanation pour renforcer
-            l’apprentissage. """),
+                types.Part.from_text(text=f"""**Contexte Impératif :** Positionne-toi comme un(e) enseignant(e) spécialiste rigoureux de {quizz['name']}, 
+                    créant une évaluation pour des étudiants de niveau {quizz['level']}. Ton objectif UNIQUE est de créer un quiz qui évalue **précisément et 
+                    exclusivement** la compréhension et la capacité d'application du contenu du PDF fourni. Tu ne dois utiliser **AUCUNE autre information ou connaissance**. 
+                    La **fidélité absolue** au document source et la **pertinence pédagogique** des questions et des distracteurs (basés uniquement sur le PDF) sont tes priorités 
+                    absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté."""),
             ],
         )
         
@@ -1277,6 +1355,36 @@ def attempt(quizz_id, quizz_version_id, attempt_id):
     except Exception as e:
         logging.error(e)
         return redirect(url_for('index'))
+
+@app.route('/update_report', methods=['GET'])
+@login_required
+def update_report():
+    def get_recent_remote_commits(n=20, branch="origin/main"):
+        try:
+            # Format : hash|auteur|date|message
+            format_str = "%h|%an|%ad|%s"
+            result = subprocess.run(
+                ["git", "log", branch, f"-n{n}", f"--pretty=format:{format_str}", "--date=format:%Y-%m-%d %H:%M:%S"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            raw_commits = result.stdout.strip().split("\n")
+            commits = []
+            for entry in raw_commits:
+                parts = entry.split("|", 3)
+                if len(parts) == 4:
+                    commits.append({
+                        "hash": parts[0],
+                        "author": parts[1],
+                        "date": parts[2],
+                        "message": parts[3]
+                    })
+            return commits
+        except subprocess.CalledProcessError:
+            return [{"hash": "Erreur", "author": "-", "date": "-", "message": "Impossible de récupérer les commits."}]
+
+    return render_template('update_report.html', commits=get_recent_remote_commits())
 
 @app.route('/stop', methods=['GET'])
 @login_required
