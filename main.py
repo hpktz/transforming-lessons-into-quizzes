@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, session, url_for, redirect, flash, make_response
 from flask_session import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from urllib.parse import quote
 
 import os
 import random
@@ -17,6 +18,15 @@ from pdf2image import convert_from_path
 import shutil
 from datetime import datetime, timedelta
 import pytz
+
+LOG_FILE = "app.log"
+
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 
 def get_paris_time():
     """Retourne l'heure actuelle au fuseau horaire de Paris."""
@@ -1385,6 +1395,42 @@ def update_report():
             return [{"hash": "Erreur", "author": "-", "date": "-", "message": "Impossible de récupérer les commits."}]
 
     return render_template('update_report.html', commits=get_recent_remote_commits())
+
+@app.route('/report', methods=['GET'])
+@login_required
+def report():
+    def get_recent_logs(minutes=2, log_file="app.log"):
+        logs = []
+        try:
+            time_threshold = datetime.now() - timedelta(minutes=minutes)
+            with open(log_file, "r") as f:
+                for line in f:
+                    try:
+                        # Extrait la date du début de ligne (doit correspondre à `datefmt`)
+                        timestamp_str = line.split(" | ")[0]
+                        timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                        if timestamp >= time_threshold:
+                            logs.append(line.strip())
+                    except Exception:
+                        continue
+        except FileNotFoundError:
+            logs.append("Fichier de log introuvable.")
+        return logs
+    
+    logs = get_recent_logs()
+    if not logs:
+        body = "Aucun log généré dans les 2 dernières minutes."
+    else:
+        body = "Description du problème (Optionel) :\n<=======================================>\n<======= INCLURE UNE DESCRIPTION =======>\n<=======================================>\n Logs récents (2 dernières minutes):\n\n" + "\n".join(logs)
+
+    mailto_link = (
+        "mailto:dev.hpktz@gmail.com"
+        "?subject=" + quote("Rapport automatique - Logs récents") +
+        "&body=" + quote(body)
+    )
+    
+    return redirect(mailto_link)
+    
 
 @app.route('/stop', methods=['GET'])
 @login_required

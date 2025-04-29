@@ -18,6 +18,7 @@ const folder_container = document.querySelectorAll('.folder-container');
 const path_item = document.querySelectorAll('.path-item');
 
 const update_button = document.querySelector('#update-button');
+const report_button = document.querySelector('#report-button');
 
 // Redirect to the quizz page when clicking on a quizz container
 
@@ -328,4 +329,8 @@ document.querySelectorAll('.content').forEach(function(content) {
 
 update_button.addEventListener('click', function(event) {
     window.location.href = '/update_report';
+});
+
+report_button.addEventListener('click', async function(event) {
+    window.open('/report', '_blank');
 });

@@ -99,7 +99,7 @@ main {
     border-bottom-right-radius: 30px;
     height: 100%;
     display: grid;
-    grid-template-rows: 100px 55px 1fr 40px;
+    grid-template-rows: 100px 55px 1fr 50px 50px;
     max-height: 100%;
     overflow: hidden;
 }
@@ -210,7 +210,7 @@ main {
     color: var(--white);
 }
 
-.lateral-menu .update-button {
+.lateral-menu .action-button {
     display: flex;
     gap: var(--spacing-s);
     align-items: center;
@@ -221,13 +221,42 @@ main {
     transition: all var(--transition-speed);
 }
 
-.lateral-menu .update-button:hover {
+.lateral-menu .action-button:hover {
     background-color: var(--secondary-color);
 }
 
-.lateral-menu .update-button img {
+.lateral-menu .action-button img {
     width: 25px;
     height: 25px;
+}
+
+.lateral-menu .action-button .text {
+    color: #999999;
+}
+
+.lateral-menu #report-button.active {
+    background-color: rgb(142, 179, 142);
+    animation: report_success 0.5s 5;
+}
+
+.lateral-menu #report-button.active .text {
+    color: var(--white);
+}
+
+.lateral-menu #report-button.active img {
+    filter: brightness(0) invert(1);
+}
+
+@keyframes report_success {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* ===== MENUS CONTEXTUELS ===== */
@@ -818,7 +847,7 @@ header .disconnect-button:hover {
 /* ===== COMMIT HISTORY SECTION ===== */
 
 .commit-main {
-    background-color: #e9e9e9b8;
+    background-color: #e9e9e9e0;
     height: 100%;
     padding: 50px 20px;
     max-height: 100%;

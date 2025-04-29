@@ -27,6 +27,7 @@
 *.pid.lock
 *.sqlite3
 *.sqlite 
+*.log
 __pycache__/
 static/.DS_Store
 templates/.DS_Store

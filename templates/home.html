@@ -70,7 +70,11 @@
                 {% endmacro %}    
                 {{ render_folder(folder_data) }} 
             </div> 
-            <div class="update-button" id="update-button">
+            <div class="action-button" id="report-button">
+                <img src="/static/icons/icons8-bug-50.png" alt="update">
+                <div class="text">Signaler un bug</div>
+            </div> 
+            <div class="action-button" id="update-button">
                 <img src="/static/icons/icons8-update-file-48.png" alt="update">
                 <div class="text">Dernières mises à jour</div>
             </div>   
@@ -349,7 +353,6 @@
             <input type="submit" value="Modifier">
         </form>
     </div>
-    
     <script src="/static/js/home.js"></script>
 </body>
 </html>
