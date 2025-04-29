@@ -11,6 +11,8 @@ const choices_container = document.querySelectorAll('.choice-container');
 
 const folder_container = document.querySelectorAll('.folder-container');
 
+const path_item = document.querySelectorAll('.path-item');
+
 // Redirect to the quizz page when clicking on a quizz container
 
 quizz_containers.forEach(function(quizz_container) {
@@ -55,6 +57,46 @@ folder_container.forEach(function(folder) {
         folder.classList.remove('drag-over'); // Ensure the visual indicator is removed on drop
         const quizz_id = event.dataTransfer.getData('text/plain');
         const folder_id = folder.dataset.id;
+
+        // Send a request to move the quizz to the folder
+        fetch(`/move_quizz/${quizz_id}/${folder_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quizz_id, folder_id })
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                console.error('Error moving quizz:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Network error:', error);
+        });
+    });
+});
+
+path_item.forEach(function(path) {  
+    path.addEventListener('click', function(event) {
+        event.stopPropagation();
+        const path_id = path.dataset.folder_id;
+        window.location.href = `/folder/${path_id}`;
+    })
+    path.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        path.classList.add('drag-over'); // Add a visual indicator for drag-over
+    });
+    path.addEventListener('dragleave', function(event) {
+        path.classList.remove('drag-over'); // Remove the visual indicator when dragging leaves
+    });
+    path.addEventListener('drop', function(event) {
+        event.preventDefault();
+        path.classList.remove('drag-over'); // Ensure the visual indicator is removed on drop
+        const quizz_id = event.dataTransfer.getData('text/plain');
+        const folder_id = path.dataset.folder_id;
 
         // Send a request to move the quizz to the folder
         fetch(`/move_quizz/${quizz_id}/${folder_id}`, {

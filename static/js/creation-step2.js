@@ -76,7 +76,7 @@ next_button.addEventListener('click', async function() {
 
         console.log(data);
         if (data.success) {
-            window.location.href = '/?quizz=' + data.quizz_id;
+            window.location.href = '/folder/' + data.folder_id + '?quizz=' + data.quizz_id;
         } else {
             main.classList.remove('to_go');
             loader.classList.add('to_enter');

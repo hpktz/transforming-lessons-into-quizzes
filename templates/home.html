@@ -80,6 +80,16 @@
                     </a>
                 </div>
             </header>
+            <div class="path">
+                {% for folder in path_info %}
+                    <div class="path-item" style="background-color: {{folder.color}}2b;" data-folder_id="{{folder.id}}">
+                        {{ folder.name }}
+                    </div>
+                    {% if not loop.last %}
+                    <img src="/static/icons/icons8-forward-50.png" class="path-arrow" alt="arrow">
+                    {% endif %}
+                {% endfor %}
+            </div>
             {% if current_folder.folders %}
             <p class="subtitle">Dossiers</p>
             <div class="folders-container">
@@ -144,11 +154,11 @@
         </div>
         <h1>Que voulez vous faire ?</h1>
         <div class="choices-container">
-            <div class="choice-container" data-url="/create/1">
+            <div class="choice-container" data-url="/create/1/{{id_folder}}">
                 <img src="/static/imgs/quizz-creation.png" alt="creation">
                 <p>Création d'un quizz à partir d'un cours</p>
             </div>
-            <div class="choice-container" data-url="/extract/1">
+            <div class="choice-container" data-url="/extract/1/{{id_folder}}">
                 <img src="/static/imgs/quizz-extraction.png" alt="extraction">
                 <p>Extraction d'un quizz depuis une annale</p>
             </div>

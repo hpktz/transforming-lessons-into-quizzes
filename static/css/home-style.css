@@ -241,6 +241,11 @@ main {
     margin: 0 auto;
     padding: 50px 25px;
     position: relative;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 header {
@@ -248,7 +253,7 @@ header {
     grid-template-columns: 1fr auto auto;
     gap: 20px;
     align-items: center;
-    margin-bottom: 50px;
+    margin-bottom: 20px;
     padding-bottom: 30px;
     border-bottom: 1px solid #ccc;
 }
@@ -278,6 +283,34 @@ header .disconnect-button:hover {
     background-color: #ffb7b799;
 }
 
+.path {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    margin-left: -20px;
+}
+
+.path .path-item {
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.path .path-item:hover {
+    filter: brightness(0.85);
+}
+
+.path .path-item.drag-over {
+    border: 2px dashed #333;
+}
+
+.path .path-arrow {
+    width: 15px;
+    height: 15px;
+}
+
 .quizzes-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -285,6 +318,9 @@ header .disconnect-button:hover {
 
     position: relative;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .empty-container {
