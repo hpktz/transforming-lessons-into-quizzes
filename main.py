@@ -101,12 +101,18 @@ def index():
     try:
         # Check if the folder.json file exists
         if not os.path.exists(os.path.join(app.root_path, 'static', 'folder.json')):
+            if os.path.exists(os.path.join(app.root_path, 'static', 'user_data.json')):
+                user_data = json.load(open(os.path.join(app.root_path, 'static', 'user_data.json')))
+                quizzes = [key for key in user_data.keys()]
+            else:
+                quizzes = []
+
             folder_data = {
                 'id': random.randint(1000000000000000, 9999999999999999),
                 'name': 'Home',
                 'color': '#FFFFFF',
                 'folders': [],
-                'quizzes': [key for key in json.load(open(os.path.join(app.root_path, 'static', 'user_data.json'))).keys()]
+                'quizzes': quizzes
             }
             with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
                 json.dump(folder_data, folder_file, indent=4) 
