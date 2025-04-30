@@ -588,7 +588,7 @@ def create3():
             client.files.upload(file=session['course_pdf'])
         ]
         
-        model = "gemini-2.0-flash"
+        model = "gemini-2.5-flash-preview-04-17"
         
         contents = [
             types.Content(
@@ -598,50 +598,71 @@ def create3():
                         file_uri=files[0].uri,
                         mime_type=files[0].mime_type,
                     ),
-                    types.Part.from_text(text=f"""Instructions :
-                    
-                    Instructions :
-                    Génère un quiz de {session['quizz_size']} questions. Le contenu du PDF fourni constitue la **base de connaissances UNIQUE et EXCLUSIVE** pour ce quiz. Ne fais appel à **AUCUNE** connaissance extérieure. Les questions doivent évaluer la compréhension et la capacité à **appliquer activement** les concepts, théories, méthodes et informations **tels qu'ils sont présentés ou synthétisés** dans ce document. Agis comme un expert du domaine qui s'appuie **uniquement** sur cette synthèse fournie pour créer l'évaluation. **Assure-toi de puiser des questions dans l'ensemble du document, couvrant sa totalité (du début à la fin) pour refléter une compréhension globale et non seulement des premières sections.**
+                    types.Part.from_text(text=f"""
+                    **Objectif Principal :** Générer un quiz de **{session['quizz_size']} questions** évaluant la compréhension **approfondie** et la **capacité d'application/raisonnement** basées **UNIQUEMENT et EXCLUSIVEMENT** sur le contenu du document PDF fourni. Agis comme un expert du domaine dont la **SEULE** source de vérité est ce document.
 
-                    **Format et Structure du Quiz :**
-                    * Le quiz doit être au format {session['quizz_type']}.
-                    * Si le format est 'choix multiple', **toutes** les questions doivent comporter **plusieurs réponses correctes** parmi les options proposées. Le nombre total d'options proposées par question doit être **suffisant pour créer un défi réaliste (vise 4 à 6 options au total)**.
-                    * Si le format est 'mixte', inclus un **mélange équilibré** de questions à réponse unique et de questions à réponses multiples correctes (respectant la règle ci-dessus pour ces dernières).
-                    * **Important - Gestion des Questions Spécifiant un Nombre :** Même si une question demande explicitement d'identifier un nombre spécifique d'éléments (par exemple, "Quels sont les 2 principaux avantages de..."), **propose TOUJOURS un nombre total d'options supérieur à ce nombre** (par exemple, 4 ou 5 options au total), incluant les bonnes réponses et des distracteurs plausibles. Le but est de tester la reconnaissance des bons éléments parmi un choix plus large.
-                    * Indique les bonnes réponses en reprenant **textuellement et exactement** leur contenu (leurs valeurs), **jamais** leur position ou une lettre (ex : "Les bonnes réponses sont : 'Option pertinente 1', 'Autre option correcte'.").
-                    * Ne numérote **ni** les questions **ni** les propositions de réponse. Présente-les simplement les unes après les autres.
-                    * **Ordre des Questions : L'ordre des questions dans le quiz final doit être mélangé et ne doit PAS suivre l'ordre chronologique des chapitres ou des sections du PDF.**
+                    **Règle Fondamentale :** **AUCUNE connaissance extérieure** ne doit être utilisée, ni pour formuler les questions, ni pour déterminer les bonnes réponses ou les distracteurs. Le PDF est la référence absolue et unique.
 
-                    **Contenu et Style des Questions :**
-                    * **INSTRUCTION CRITIQUE : NE JAMAIS commencer ou formuler les questions en utilisant des tournures comme 'Selon le document...', 'D'après le PDF...', 'Dans le contexte du cours...', 'Comme vu dans le matériel...', etc.** Pose les questions **directement**, comme si tu t'adressais à un étudiant qui est **supposé connaître le contenu du PDF**. Le PDF est la **référence factuelle implicite et unique** pour déterminer la justesse des réponses. Par exemple, au lieu de 'Selon le document, quelle est la définition de X ?', demande 'Quelle est la définition de X ?' ou 'Comment X est-il défini ?'.
-                    * Applique le système de notation suivant : {session['quizz_notation']}.
-                    * Intègre **impérativement** des questions portant sur les notions spécifiques suivantes : {session['quizz_notions']}. Assure-toi que ces notions soient couvertes de manière significative et, si possible, via des questions d'application directe ou de raisonnement basées sur ces notions.
-                    * Formule des questions aux **styles variés** (ex: identification de la meilleure approche selon les critères du PDF, analyse comparative des méthodes décrites, diagnostic basé sur des symptômes/données présentés dans le PDF, calcul/interprétation en appliquant une formule/méthode du PDF, prise de décision dans un contexte décrit s'inspirant du PDF) et de difficulté progressive.
-                    * **Consacre une part significative (vise entre 1/3 et 1/2 du quiz) à des questions de mise en application pratique et de raisonnement.** Ces questions doivent exiger l'**utilisation active et l'inférence** à partir des connaissances du PDF :
-                        * Propose des **scénarios concrets**, des **études de cas simplifiées**, ou des **ensembles de données** (inspirés **strictement** du PDF ou conformes aux exemples qu'il donne) et pose des questions du type : "Face à cette situation [description fidèle à un contexte du PDF], quelles actions seraient prioritaires en appliquant les principes de [concept du PDF] ?", "Analysez ces données [données du type de celles du PDF] : quelles conclusions spécifiques peut-on tirer concernant [phénomène décrit dans le PDF] en se basant **uniquement** sur les informations fournies ?", "Étant donné [paramètres spécifiques issus du PDF], quel serait le résultat/calcul exact selon la méthode [nom de la méthode du PDF] ?", "Quel(s) outil(s) ou technique(s) **décrit(s) dans le document** serai(en)t le(s) plus pertinent(s) pour aborder [problème spécifique pouvant être résolu avec les infos du PDF] ?".
-                        * Ne te contente pas de demander si une application est possible, mais formule un problème ou une situation où l'étudiant doit *mobiliser activement* la connaissance issue du PDF pour y répondre.
-                    * Veille à ce que **toutes** les propositions de réponse (correctes ET incorrectes) soient **plausibles dans le contexte du sujet traité par le PDF**, clairement formulées et équilibrées en termes de style et de longueur. Les distracteurs (réponses incorrectes) doivent être **pertinents** mais **indiscutablement faux ou non supportés par le contenu spécifiques du PDF**. Ils peuvent représenter des erreurs communes ou des concepts proches mais distincts de ceux présentés dans le document.
+                    **Instructions Détaillées :**
 
-                    **Variété et Positionnement des Réponses :**
-                    * **Pour chaque question à choix multiple ou mixte, positionne la ou les bonnes réponses de manière aléatoire parmi les options proposées.** Évite **toute** tendance systématique (ne pas toujours mettre la bonne réponse en premier, dernier, etc.).
+                    1.  **Couverture du Document :** Assure-toi que les questions couvrent **l'intégralité du document** (du début à la fin), reflétant une compréhension globale et pas seulement des premières sections. Ne te limite pas aux titres ou aux introductions de section.
 
-                    **Sourçage et Justification Rigoureux :**
-                    * Pour **chaque** question :
-                        * Fournis une référence précise au PDF : indique le **numéro de page exact**.
-                        * Indique la **section/le concept clé pertinent(s)** (texte, image, tableau, formule) qui **justifie(nt) SANS AMBIGUÏTÉ la question ET la ou les bonnes réponses choisies**.
-                        * Pour les questions d'application, la référence doit pointer vers le(s) concept(s) ou la méthode du PDF qui sont **directement appliqués** dans le scénario ou le problème posé.
-                        * La référence doit permettre de comprendre **pourquoi les options correctes le sont, et pourquoi les distracteurs sont incorrects, EN SE BASANT EXCLUSIVEMENT SUR LE PDF**.
-                    
+                    2.  **Format et Structure du Quiz :**
+                        * Le quiz doit être au format **{session['quizz_type']}**.
+                        * **Choix Multiple (si applicable) :**
+                            * **TOUTES** les questions à choix multiples DOIVENT comporter **PLUSIEURS réponses correctes**.
+                            * Propose un total de **4 à 6 options** par question (incluant bonnes réponses et distracteurs pertinents).
+                        * **Mixte (si applicable) :** Inclut un **mélange équilibré** de questions à réponse unique et de questions à réponses multiples (respectant la règle ci-dessus).
+                        * **Questions Spécifiant un Nombre :** Même si une question demande "Quels sont les 2 avantages...", propose **TOUJOURS plus d'options** (ex: 4 ou 5 au total), forçant l'identification des bonnes réponses parmi un ensemble plus large de distracteurs plausibles issus du PDF.
+                        * **Identification des Bonnes Réponses :** Indique les bonnes réponses en reprenant **TEXTUELLEMENT** leur contenu exact (leurs valeurs). **JAMAIS** de lettres ou de positions (ex : "Les bonnes réponses sont : 'Concept A tel que décrit', 'Méthode B expliquée page X'.").
+                        * **Présentation :** Ne numérote **NI** les questions, **NI** les options. Présente-les simplement séquentiellement.
+                        * **Ordre :** L'ordre des questions doit être **aléatoire** et ne **PAS** suivre l'ordre du document.
+
+                    3.  **Contenu et Style des Questions :**
+                        * **INSTRUCTION CRITIQUE - Formulation Directe :** NE JAMAIS utiliser de tournures comme "Selon le document...", "D'après le PDF...". Pose les questions **directement**, comme à un étudiant qui **maîtrise le contenu du PDF**. Le PDF est la référence factuelle **implicite**. (Ex: Au lieu de "Selon le PDF, comment définir X ?", demande "Comment X est-il défini ?" ou "Quelles caractéristiques définissent X ?").
+                        * **Système de Notation :** Applique le système suivant : **{session['quizz_notation']}**.
+                        * **Notions Obligatoires :** Intègre **impérativement** des questions (idéalement d'application/raisonnement) sur : **{session['quizz_notions']}**.
+                        * **VARIÉTÉ et PROFONDEUR (Instruction Clé) :**
+                            * **Mix de Styles :** Va au-delà du simple rappel. Inclus des questions demandant :
+                                * **Identification/Classification :** Reconnaître des concepts, types, catégories décrits.
+                                * **Comparaison/Contraste :** Analyser les similarités/différences entre méthodes/théories du PDF.
+                                * **Analyse de Cause/Effet :** Identifier les liens de causalité expliqués dans le PDF.
+                                * **Application de Procédure/Méthode :** Suivre les étapes d'un processus décrit dans le PDF.
+                                * **Calcul/Interprétation :** Utiliser une formule ou interpréter des données/graphiques présentés dans le PDF.
+                            * **FOCUS MAJEUR - Application & Raisonnement (Vise 40-50% du quiz) :** Ces questions doivent exiger **plus qu'une simple récupération d'information**. Elles doivent tester la capacité à **utiliser activement, combiner, et inférer** à partir des connaissances du PDF.
+                                * **Crée des Mini-Scénarios ou Problèmes :** Propose des situations **concrètes et plausibles**, des **études de cas très simplifiées**, ou des **ensembles de données**, TOUJOURS **strictement inspirés ou conformes** aux exemples, contextes ou types de données présents dans le PDF.
+                                * **Formulation des Questions d'Application :**
+                                    * "Face à [Scénario basé sur le PDF], quelle serait l'approche prioritaire en utilisant les principes de [Concept du PDF] ?"
+                                    * "Analysez ces [Type de données comme dans le PDF] : quelle(s) conclusion(s) spécifique(s) peut-on tirer concernant [Phénomène décrit dans le PDF], en se basant **uniquement** sur les éléments fournis dans le document ?"
+                                    * "Étant donné [Paramètres spécifiques issus du PDF], quel serait le résultat de l'application de la méthode [Nom méthode du PDF] ?"
+                                    * "Quel(s) outil(s) ou critère(s) **décrit(s) dans ce document** serai(en)t le(s) plus pertinent(s) pour évaluer/résoudre [Problème spécifique formulé avec les termes du PDF] ? Pourquoi (selon le PDF) ?"
+                                    * "Si l'on modifie le paramètre X comme suit [Variation plausible selon le PDF], quel impact cela aurait-il sur Y, d'après les mécanismes expliqués dans le document ?"
+                                * **Exigence Clé :** La question doit obliger à **mobiliser et appliquer** une ou plusieurs informations/méthodes du PDF pour trouver la réponse, pas seulement à la localiser. Pense "Que ferait quelqu'un qui a *compris et intégré* ce passage du PDF face à cette situation ?".
+
+                    4.  **Qualité des Options et Distracteurs :**
+                        * **Toutes** les options (correctes et incorrectes) doivent être **plausibles** dans le contexte du PDF.
+                        * Les distracteurs doivent être **pertinents** mais **clairement faux ou non supportés par le contenu spécifique du PDF**. Ils peuvent représenter des erreurs communes *discutées ou implicitement contredites* dans le document, ou des concepts proches mais distincts.
+                        * Équilibre la longueur et le style des options.
+
+                    5.  **Positionnement Aléatoire des Réponses :** Pour chaque question, la ou les bonnes réponses doivent être positionnées **aléatoirement** parmi les options. Évite toute tendance systématique.
+
+                    6.  **Sourçage et Justification Rigoureux (Pour CHAQUE question) :**
+                        * **Page(s) Exacte(s) :** Indique le numéro de page précis dans le PDF.
+                        * **Concept(s) Clé(s) / Passage(s) Pertinent(s) :** Référence le texte, l'image, le tableau, la formule qui **justifie SANS AMBIGUÏTÉ la question ET la ou les bonnes réponses**.
+                        * **Justification d'Application :** Pour les questions d'application/raisonnement, la référence doit pointer vers le(s) principe(s), méthode(s) ou information(s) du PDF qui sont **directement mobilisés ou combinés** pour répondre correctement au scénario/problème posé. La justification doit expliquer *comment* le PDF mène à la bonne réponse et invalide les distracteurs.
+
+                    *(Meta-instruction interne pour l'IA : Lors de la création des questions d'application, décompose le raisonnement : 1. Identifier le concept/méthode clé du PDF à tester. 2. Créer un scénario/problème qui nécessite l'application de ce concept/méthode, en utilisant uniquement des éléments/contextes présents ou implicites dans le PDF. 3. Déterminer la ou les réponses correctes en appliquant strictement le PDF. 4. Créer des distracteurs plausibles mais réfutables par le PDF.)*
                     """),
                 ],
             ),
         ]
         
         generate_content_config = types.GenerateContentConfig(
-            temperature=1, # Garder une certaine créativité mais la rigueur vient des instructions
+            temperature=0.3,
             top_p=0.95,
             top_k=40,
-            max_output_tokens=8192,
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
+            max_output_tokens=65536,
             response_mime_type="application/json",
             response_schema=genai.types.Schema(
                 type = genai.types.Type.OBJECT,
@@ -665,6 +686,11 @@ def create3():
                                 "question": genai.types.Schema(
                                     type = genai.types.Type.STRING,
                                     description = "Texte de la question, formulé directement (SANS 'Selon le document...'), évaluant la compréhension ou l'application du contenu du PDF.",
+                                ),
+                                "type_question": genai.types.Schema(
+                                    type = genai.types.Type.STRING,
+                                    description = "Type de question: 'connaissance' ou 'application'",
+                                    enum = ["connaissance", "application"]
                                 ),
                                 "answers": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
@@ -712,7 +738,11 @@ def create3():
                     créant une évaluation pour des étudiants de niveau {session['course_level']}. Ton objectif UNIQUE est de créer un quiz qui évalue **précisément et 
                     exclusivement** la compréhension et la capacité d'application du contenu du PDF fourni. Tu ne dois utiliser **AUCUNE autre information ou connaissance**. 
                     La **fidélité absolue** au document source et la **pertinence pédagogique** des questions et des distracteurs (basés uniquement sur le PDF) sont tes priorités 
-                    absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté."""),
+                    absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté.
+                    **OBLIGATION FORMELLE:** Au moins 40% des questions générées DOIVENT être des questions d'application/raisonnement 
+                    avec des mini-scénarios concrets. Tu dois alterner systématiquement entre questions de connaissance et questions d'application.
+                    N'inclus surtout pas dans tes questions avec "Selon le PDF..." ou "D'après le document...".
+                """),
             ],
         )
 
@@ -859,7 +889,7 @@ def extract2():
             client.files.upload(file=quizz_temp_path)
         ]
         
-        model = "gemini-2.0-flash"
+        model = "gemini-2.5-flash-preview-04-17"
         
         contents = [
             types.Content(
@@ -919,10 +949,11 @@ def extract2():
         ]
         
         generate_content_config = types.GenerateContentConfig(
-            temperature=1,
+            temperature=0.2,
             top_p=0.95,
             top_k=40,
-            max_output_tokens=8192,
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
+            max_output_tokens=65536,
             response_mime_type="application/json",
             response_schema=genai.types.Schema(
                 type=genai.types.Type.OBJECT,
@@ -1150,7 +1181,7 @@ def generate_quizz(quizz_id):
             client.files.upload(file=os.path.join(app.root_path, 'static', 'user_files', f'file_quizz_{quizz_id}.pdf'))
         ]
         
-        model = "gemini-2.0-flash"
+        model = "gemini-2.5-flash-preview-04-17"
         
         contents = [
             types.Content(
@@ -1161,37 +1192,59 @@ def generate_quizz(quizz_id):
                 mime_type=files[0].mime_type,
                 ),
                 types.Part.from_text(text=f"""
-                Instructions :
-                Génère un quiz de {session['quizz_size']} questions. Le contenu du PDF fourni constitue la **base de connaissances UNIQUE et EXCLUSIVE** pour ce quiz. Ne fais appel à **AUCUNE** connaissance extérieure. Les questions doivent évaluer la compréhension et la capacité à **appliquer activement** les concepts, théories, méthodes et informations **tels qu'ils sont présentés ou synthétisés** dans ce document. Agis comme un expert du domaine qui s'appuie **uniquement** sur cette synthèse fournie pour créer l'évaluation. **Assure-toi de puiser des questions dans l'ensemble du document, couvrant sa totalité (du début à la fin) pour refléter une compréhension globale et non seulement des premières sections.**
+                **Objectif Principal :** Générer un quiz de **{quizz['size']} questions** évaluant la compréhension **approfondie** et la **capacité d'application/raisonnement** basées **UNIQUEMENT et EXCLUSIVEMENT** sur le contenu du document PDF fourni. Agis comme un expert du domaine dont la **SEULE** source de vérité est ce document.
 
-                **Format et Structure du Quiz :**
-                * Le quiz doit être au format {session['quizz_type']}.
-                * Si le format est 'choix multiple', **toutes** les questions doivent comporter **plusieurs réponses correctes** parmi les options proposées. Le nombre total d'options proposées par question doit être **suffisant pour créer un défi réaliste (vise 4 à 6 options au total)**.
-                * Si le format est 'mixte', inclus un **mélange équilibré** de questions à réponse unique et de questions à réponses multiples correctes (respectant la règle ci-dessus pour ces dernières).
-                * **Important - Gestion des Questions Spécifiant un Nombre :** Même si une question demande explicitement d'identifier un nombre spécifique d'éléments (par exemple, "Quels sont les 2 principaux avantages de..."), **propose TOUJOURS un nombre total d'options supérieur à ce nombre** (par exemple, 4 ou 5 options au total), incluant les bonnes réponses et des distracteurs plausibles. Le but est de tester la reconnaissance des bons éléments parmi un choix plus large.
-                * Indique les bonnes réponses en reprenant **textuellement et exactement** leur contenu (leurs valeurs), **jamais** leur position ou une lettre (ex : "Les bonnes réponses sont : 'Option pertinente 1', 'Autre option correcte'.").
-                * Ne numérote **ni** les questions **ni** les propositions de réponse. Présente-les simplement les unes après les autres.
-                * **Ordre des Questions : L'ordre des questions dans le quiz final doit être mélangé et ne doit PAS suivre l'ordre chronologique des chapitres ou des sections du PDF.**
+                **Règle Fondamentale :** **AUCUNE connaissance extérieure** ne doit être utilisée, ni pour formuler les questions, ni pour déterminer les bonnes réponses ou les distracteurs. Le PDF est la référence absolue et unique.
 
-                **Contenu et Style des Questions :**
-                * **INSTRUCTION CRITIQUE : NE JAMAIS commencer ou formuler les questions en utilisant des tournures comme 'Selon le document...', 'D'après le PDF...', 'Dans le contexte du cours...', 'Comme vu dans le matériel...', etc.** Pose les questions **directement**, comme si tu t'adressais à un étudiant qui est **supposé connaître le contenu du PDF**. Le PDF est la **référence factuelle implicite et unique** pour déterminer la justesse des réponses. Par exemple, au lieu de 'Selon le document, quelle est la définition de X ?', demande 'Quelle est la définition de X ?' ou 'Comment X est-il défini ?'.
-                * Applique le système de notation suivant : {session['quizz_notation']}.
-                * Intègre **impérativement** des questions portant sur les notions spécifiques suivantes : {session['quizz_notions']}. Assure-toi que ces notions soient couvertes de manière significative et, si possible, via des questions d'application directe ou de raisonnement basées sur ces notions.
-                * Formule des questions aux **styles variés** (ex: identification de la meilleure approche selon les critères du PDF, analyse comparative des méthodes décrites, diagnostic basé sur des symptômes/données présentés dans le PDF, calcul/interprétation en appliquant une formule/méthode du PDF, prise de décision dans un contexte décrit s'inspirant du PDF) et de difficulté progressive.
-                * **Consacre une part significative (vise entre 1/3 et 1/2 du quiz) à des questions de mise en application pratique et de raisonnement.** Ces questions doivent exiger l'**utilisation active et l'inférence** à partir des connaissances du PDF :
-                    * Propose des **scénarios concrets**, des **études de cas simplifiées**, ou des **ensembles de données** (inspirés **strictement** du PDF ou conformes aux exemples qu'il donne) et pose des questions du type : "Face à cette situation [description fidèle à un contexte du PDF], quelles actions seraient prioritaires en appliquant les principes de [concept du PDF] ?", "Analysez ces données [données du type de celles du PDF] : quelles conclusions spécifiques peut-on tirer concernant [phénomène décrit dans le PDF] en se basant **uniquement** sur les informations fournies ?", "Étant donné [paramètres spécifiques issus du PDF], quel serait le résultat/calcul exact selon la méthode [nom de la méthode du PDF] ?", "Quel(s) outil(s) ou technique(s) **décrit(s) dans le document** serai(en)t le(s) plus pertinent(s) pour aborder [problème spécifique pouvant être résolu avec les infos du PDF] ?".
-                    * Ne te contente pas de demander si une application est possible, mais formule un problème ou une situation où l'étudiant doit *mobiliser activement* la connaissance issue du PDF pour y répondre.
-                * Veille à ce que **toutes** les propositions de réponse (correctes ET incorrectes) soient **plausibles dans le contexte du sujet traité par le PDF**, clairement formulées et équilibrées en termes de style et de longueur. Les distracteurs (réponses incorrectes) doivent être **pertinents** mais **indiscutablement faux ou non supportés par le contenu spécifiques du PDF**. Ils peuvent représenter des erreurs communes ou des concepts proches mais distincts de ceux présentés dans le document.
+                **Instructions Détaillées :**
 
-                **Variété et Positionnement des Réponses :**
-                * **Pour chaque question à choix multiple ou mixte, positionne la ou les bonnes réponses de manière aléatoire parmi les options proposées.** Évite **toute** tendance systématique (ne pas toujours mettre la bonne réponse en premier, dernier, etc.).
+                1.  **Couverture du Document :** Assure-toi que les questions couvrent **l'intégralité du document** (du début à la fin), reflétant une compréhension globale et pas seulement des premières sections. Ne te limite pas aux titres ou aux introductions de section.
 
-                **Sourçage et Justification Rigoureux :**
-                * Pour **chaque** question :
-                    * Fournis une référence précise au PDF : indique le **numéro de page exact**.
-                    * Indique la **section/le concept clé pertinent(s)** (texte, image, tableau, formule) qui **justifie(nt) SANS AMBIGUÏTÉ la question ET la ou les bonnes réponses choisies**.
-                    * Pour les questions d'application, la référence doit pointer vers le(s) concept(s) ou la méthode du PDF qui sont **directement appliqués** dans le scénario ou le problème posé.
-                    * La référence doit permettre de comprendre **pourquoi les options correctes le sont, et pourquoi les distracteurs sont incorrects, EN SE BASANT EXCLUSIVEMENT SUR LE PDF**.
+                2.  **Format et Structure du Quiz :**
+                    * Le quiz doit être au format **{quizz['type']}**.
+                    * **Choix Multiple (si applicable) :**
+                        * **TOUTES** les questions à choix multiples DOIVENT comporter **PLUSIEURS réponses correctes**.
+                        * Propose un total de **4 à 6 options** par question (incluant bonnes réponses et distracteurs pertinents).
+                    * **Mixte (si applicable) :** Inclut un **mélange équilibré** de questions à réponse unique et de questions à réponses multiples (respectant la règle ci-dessus).
+                    * **Questions Spécifiant un Nombre :** Même si une question demande "Quels sont les 2 avantages...", propose **TOUJOURS plus d'options** (ex: 4 ou 5 au total), forçant l'identification des bonnes réponses parmi un ensemble plus large de distracteurs plausibles issus du PDF.
+                    * **Identification des Bonnes Réponses :** Indique les bonnes réponses en reprenant **TEXTUELLEMENT** leur contenu exact (leurs valeurs). **JAMAIS** de lettres ou de positions (ex : "Les bonnes réponses sont : 'Concept A tel que décrit', 'Méthode B expliquée page X'.").
+                    * **Présentation :** Ne numérote **NI** les questions, **NI** les options. Présente-les simplement séquentiellement.
+                    * **Ordre :** L'ordre des questions doit être **aléatoire** et ne **PAS** suivre l'ordre du document.
+
+                3.  **Contenu et Style des Questions :**
+                    * **INSTRUCTION CRITIQUE - Formulation Directe :** NE JAMAIS utiliser de tournures comme "Selon le document...", "D'après le PDF...". Pose les questions **directement**, comme à un étudiant qui **maîtrise le contenu du PDF**. Le PDF est la référence factuelle **implicite**. (Ex: Au lieu de "Selon le PDF, comment définir X ?", demande "Comment X est-il défini ?" ou "Quelles caractéristiques définissent X ?").
+                    * **Système de Notation :** Applique le système suivant : **{quizz['notation']}**.
+                    * **Notions Obligatoires :** Intègre **impérativement** des questions (idéalement d'application/raisonnement) sur : **{quizz['notions']}**.
+                    * **VARIÉTÉ et PROFONDEUR (Instruction Clé) :**
+                        * **Mix de Styles :** Va au-delà du simple rappel. Inclus des questions demandant :
+                            * **Identification/Classification :** Reconnaître des concepts, types, catégories décrits.
+                            * **Comparaison/Contraste :** Analyser les similarités/différences entre méthodes/théories du PDF.
+                            * **Analyse de Cause/Effet :** Identifier les liens de causalité expliqués dans le PDF.
+                            * **Application de Procédure/Méthode :** Suivre les étapes d'un processus décrit dans le PDF.
+                            * **Calcul/Interprétation :** Utiliser une formule ou interpréter des données/graphiques présentés dans le PDF.
+                        * **FOCUS MAJEUR - Application & Raisonnement (Vise 40-50% du quiz) :** Ces questions doivent exiger **plus qu'une simple récupération d'information**. Elles doivent tester la capacité à **utiliser activement, combiner, et inférer** à partir des connaissances du PDF.
+                            * **Crée des Mini-Scénarios ou Problèmes :** Propose des situations **concrètes et plausibles**, des **études de cas très simplifiées**, ou des **ensembles de données**, TOUJOURS **strictement inspirés ou conformes** aux exemples, contextes ou types de données présents dans le PDF.
+                            * **Formulation des Questions d'Application :**
+                                * "Face à [Scénario basé sur le PDF], quelle serait l'approche prioritaire en utilisant les principes de [Concept du PDF] ?"
+                                * "Analysez ces [Type de données comme dans le PDF] : quelle(s) conclusion(s) spécifique(s) peut-on tirer concernant [Phénomène décrit dans le PDF], en se basant **uniquement** sur les éléments fournis dans le document ?"
+                                * "Étant donné [Paramètres spécifiques issus du PDF], quel serait le résultat de l'application de la méthode [Nom méthode du PDF] ?"
+                                * "Quel(s) outil(s) ou critère(s) **décrit(s) dans ce document** serai(en)t le(s) plus pertinent(s) pour évaluer/résoudre [Problème spécifique formulé avec les termes du PDF] ? Pourquoi (selon le PDF) ?"
+                                * "Si l'on modifie le paramètre X comme suit [Variation plausible selon le PDF], quel impact cela aurait-il sur Y, d'après les mécanismes expliqués dans le document ?"
+                            * **Exigence Clé :** La question doit obliger à **mobiliser et appliquer** une ou plusieurs informations/méthodes du PDF pour trouver la réponse, pas seulement à la localiser. Pense "Que ferait quelqu'un qui a *compris et intégré* ce passage du PDF face à cette situation ?".
+
+                4.  **Qualité des Options et Distracteurs :**
+                    * **Toutes** les options (correctes et incorrectes) doivent être **plausibles** dans le contexte du PDF.
+                    * Les distracteurs doivent être **pertinents** mais **clairement faux ou non supportés par le contenu spécifique du PDF**. Ils peuvent représenter des erreurs communes *discutées ou implicitement contredites* dans le document, ou des concepts proches mais distincts.
+                    * Équilibre la longueur et le style des options.
+
+                5.  **Positionnement Aléatoire des Réponses :** Pour chaque question, la ou les bonnes réponses doivent être positionnées **aléatoirement** parmi les options. Évite toute tendance systématique.
+
+                6.  **Sourçage et Justification Rigoureux (Pour CHAQUE question) :**
+                    * **Page(s) Exacte(s) :** Indique le numéro de page précis dans le PDF.
+                    * **Concept(s) Clé(s) / Passage(s) Pertinent(s) :** Référence le texte, l'image, le tableau, la formule qui **justifie SANS AMBIGUÏTÉ la question ET la ou les bonnes réponses**.
+                    * **Justification d'Application :** Pour les questions d'application/raisonnement, la référence doit pointer vers le(s) principe(s), méthode(s) ou information(s) du PDF qui sont **directement mobilisés ou combinés** pour répondre correctement au scénario/problème posé. La justification doit expliquer *comment* le PDF mène à la bonne réponse et invalide les distracteurs.
+
+                *(Meta-instruction interne pour l'IA : Lors de la création des questions d'application, décompose le raisonnement : 1. Identifier le concept/méthode clé du PDF à tester. 2. Créer un scénario/problème qui nécessite l'application de ce concept/méthode, en utilisant uniquement des éléments/contextes présents ou implicites dans le PDF. 3. Déterminer la ou les réponses correctes en appliquant strictement le PDF. 4. Créer des distracteurs plausibles mais réfutables par le PDF.)*
                 
                 """),
             ],
@@ -1199,10 +1252,11 @@ def generate_quizz(quizz_id):
         ]
         
         generate_content_config = types.GenerateContentConfig(
-            temperature=1, # Garder une certaine créativité mais la rigueur vient des instructions
+            temperature=0.3, # Garder une certaine créativité mais la rigueur vient des instructions
             top_p=0.95,
             top_k=40,
-            max_output_tokens=8192,
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
+            max_output_tokens=65536,
             response_mime_type="application/json",
             response_schema=genai.types.Schema(
                 type = genai.types.Type.OBJECT,
@@ -1226,6 +1280,11 @@ def generate_quizz(quizz_id):
                                 "question": genai.types.Schema(
                                     type = genai.types.Type.STRING,
                                     description = "Texte de la question, formulé directement (SANS 'Selon le document...'), évaluant la compréhension ou l'application du contenu du PDF.",
+                                ),
+                                "type_question": genai.types.Schema(
+                                    type = genai.types.Type.STRING,
+                                    description = "Type de question: 'connaissance' ou 'application'",
+                                    enum = ["connaissance", "application"]
                                 ),
                                 "answers": genai.types.Schema(
                                     type = genai.types.Type.ARRAY,
@@ -1273,7 +1332,11 @@ def generate_quizz(quizz_id):
                     créant une évaluation pour des étudiants de niveau {quizz['level']}. Ton objectif UNIQUE est de créer un quiz qui évalue **précisément et 
                     exclusivement** la compréhension et la capacité d'application du contenu du PDF fourni. Tu ne dois utiliser **AUCUNE autre information ou connaissance**. 
                     La **fidélité absolue** au document source et la **pertinence pédagogique** des questions et des distracteurs (basés uniquement sur le PDF) sont tes priorités 
-                    absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté."""),
+                    absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté.
+                    **OBLIGATION FORMELLE:** Au moins 40% des questions générées DOIVENT être des questions d'application/raisonnement 
+                    avec des mini-scénarios concrets. Tu dois alterner systématiquement entre questions de connaissance et questions d'application.
+                    N'inclus surtout pas dans tes questions avec "Selon le PDF..." ou "D'après le document...".
+                """),
             ],
         )
         
