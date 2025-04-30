@@ -28,6 +28,14 @@
             <div class="question_main_container">
                 <div class="question_container" style="background-color: #E8F8F5;">
                     <div class="question_title">Question {{question + 1}}</div>
+                    {% if question_data[question].type_question%}
+                    {% if question_data[question].type_question == "application" %}
+                    <div class="relfexion_logo">
+                        <img src="/static/icons/icons8-brain-50.png" alt="application-logo">
+                        <div class="relfexion_text">Réflexion</div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
                     <div class="question_content">{{question_data[question].question}}</div>
                     {% set type_of_quizz = "unique" %}
                     {% if question_data[question].correct|length > 1 %}

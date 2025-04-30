@@ -681,7 +681,7 @@ def create3():
                         description = "Liste des questions composant le quiz.",
                         items = genai.types.Schema(
                             type = genai.types.Type.OBJECT,
-                            required = ["question", "answers", "correct", "explanation", "sources"],
+                            required = ["question", "answers", "correct", "explanation", "sources", "type_question"],
                             properties = {
                                 "question": genai.types.Schema(
                                     type = genai.types.Type.STRING,
@@ -1275,7 +1275,7 @@ def generate_quizz(quizz_id):
                         description = "Liste des questions composant le quiz.",
                         items = genai.types.Schema(
                             type = genai.types.Type.OBJECT,
-                            required = ["question", "answers", "correct", "explanation", "sources"],
+                            required = ["question", "answers", "correct", "explanation", "sources", "type_question"],
                             properties = {
                                 "question": genai.types.Schema(
                                     type = genai.types.Type.STRING,
@@ -1407,6 +1407,7 @@ def play_quizz(id, quizz_id):
                     'question': q['question'][3:] if q['question'][:3].isdigit() and q['question'][2] == '.' else q['question'],
                     'answers': q['answers'],
                     'correct': q['correct'],
+                    'type_question': q['type_question'],
                     'answered': False,
                     'selected_answers': []
                 } for q in next(q for q in data[str(id)]['quizzes'] if q['id'] == quizz_id)['questions']
