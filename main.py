@@ -6,9 +6,12 @@ from urllib.parse import quote
 import os
 import random
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import json
 import emoji
 import subprocess
+
+from difflib import get_close_matches
 
 from google import genai
 from google.genai import types
@@ -21,12 +24,22 @@ import pytz
 
 LOG_FILE = "app.log"
 
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
+# Création d'un handler avec rotation toutes les 24h, et conservation pendant 2 jours
+handler = TimedRotatingFileHandler(
+    LOG_FILE, when="D", interval=1, backupCount=2, encoding='utf-8'
+)
+
+# Définir le format du log
+formatter = logging.Formatter(
+    fmt="%(asctime)s | %(levelname)s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
+handler.setFormatter(formatter)
+
+# Configuration du logger
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)  
 
 def get_paris_time():
     """Retourne l'heure actuelle au fuseau horaire de Paris."""
@@ -38,8 +51,6 @@ def parse_datetime_with_tz(datetime_str, format_str='%Y-%m-%d %H:%M:%S'):
     naive_datetime = datetime.strptime(datetime_str, format_str)
     paris_tz = pytz.timezone('Europe/Paris')
     return paris_tz.localize(naive_datetime)
-
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -166,6 +177,12 @@ def folder(folder_id):
         
         data_to_show = []
         for key in current_folder['quizzes']:
+            last_attempt = "~"
+        
+            if data[str(key)]['quizzes'] and len(data[str(key)]['quizzes']) > 0:
+                last_version = data[str(key)]['quizzes'][-1]
+                if 'attempts' in last_version and len(last_version['attempts']) > 0:
+                    last_attempt = last_version['attempts'][-1]['score']
             data_to_show.append({
                 'id': key,
                 'title': data[str(key)]['title'],
@@ -173,6 +190,7 @@ def folder(folder_id):
                 'emoji': data[str(key)]['emoji'],
                 'size': data[str(key)]['size'],
                 'preview_path': url_for('static', filename=f'pdf_preview/preview_{key}.jpg'),
+                'last_attempt': last_attempt,
                 'quizz_amount': len(data[str(key)]['quizzes']),
                                 'to_highlight': True if int(key) == query else False
             })
@@ -721,6 +739,19 @@ def create3():
             "#F0F8FF",  # Bleu Alice très pâle
             "#FCF5E5"   # Sable pastel clair
         ]
+        
+        # Verify if 'correct' answers are in 'answers', and handle mismatches
+        for question in output['questions']:
+            valid_correct_answers = []
+            for correct in question['correct']:
+                if correct in question['answers']:
+                    valid_correct_answers.append(correct)
+                else:
+                    # Check for close matches in 'answers'
+                    close_matches = get_close_matches(correct, question['answers'], n=1, cutoff=0.9)
+                    if close_matches:
+                        valid_correct_answers.append(close_matches[0])
+            question['correct'] = valid_correct_answers
 
         quizz[quizz_id] = {
             'title': output['title'],
@@ -1257,6 +1288,19 @@ def generate_quizz(quizz_id):
         output = json.loads(output)
         logging.debug(f"API Response: {output}")
         
+        # Verify if 'correct' answers are in 'answers', and handle mismatches
+        for question in output['questions']:
+            valid_correct_answers = []
+            for correct in question['correct']:
+                if correct in question['answers']:
+                    valid_correct_answers.append(correct)
+                else:
+                    # Check for close matches in 'answers'
+                    close_matches = get_close_matches(correct, question['answers'], n=1, cutoff=0.9)
+                    if close_matches:
+                        valid_correct_answers.append(close_matches[0])
+            question['correct'] = valid_correct_answers
+        
         quizz['quizzes'].append({
             'id': random.randint(1000000000000000, 9999999999999999),
             'date': get_paris_time().strftime('%Y-%m-%d'),
@@ -1306,6 +1350,7 @@ def play_quizz(id, quizz_id):
             ]
         }
         
+        logging.debug(f"Quizz Data JSON: {session['game_session']}")
         return redirect(url_for('play', game_session_id=game_session_id, question=0))
     except Exception as e:
         logging.error(e)
@@ -1472,6 +1517,8 @@ def attempt(quizz_id, quizz_version_id, attempt_id):
             'answers': attempt['answer'],
             'correct_answers_index': index_of_right_answers
         }
+        
+        logging.debug(f"Attempt Data JSON: {data_to_show}")
         
         return render_template('attempt.html', data=data_to_show)
     except Exception as e:
