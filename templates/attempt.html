@@ -46,6 +46,14 @@
                 {% set quest_index = loop.index0 %}
                 <div class="question_container" style="background-color: {{data.color}};" id="question_{{loop.index}}">
                     <div class="question_title">Question {{loop.index}}</div>
+                    {% if quest.type_question%}
+                    {% if quest.type_question == "application" %}
+                    <div class="relfexion_logo">
+                        <img src="/static/icons/icons8-brain-50.png" alt="application-logo">
+                        <div class="relfexion_text">Réflexion</div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
                     <div class="question_content">{{quest.question}}</div>
                     {% set type_of_quizz = "unique" %}
                     {% if quest.correct|length > 1 %}

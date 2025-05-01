@@ -629,7 +629,7 @@ def create3():
                                 * **Analyse de Cause/Effet :** Identifier les liens de causalité expliqués dans le PDF.
                                 * **Application de Procédure/Méthode :** Suivre les étapes d'un processus décrit dans le PDF.
                                 * **Calcul/Interprétation :** Utiliser une formule ou interpréter des données/graphiques présentés dans le PDF.
-                            * **FOCUS MAJEUR - Application & Raisonnement (Vise 40-50% du quiz) :** Ces questions doivent exiger **plus qu'une simple récupération d'information**. Elles doivent tester la capacité à **utiliser activement, combiner, et inférer** à partir des connaissances du PDF.
+                            * **FOCUS MAJEUR - Application & Raisonnement (Vise 20-35% du quiz) :** Ces questions doivent exiger **plus qu'une simple récupération d'information**. Elles doivent tester la capacité à **utiliser activement, combiner, et inférer** à partir des connaissances du PDF.
                                 * **Crée des Mini-Scénarios ou Problèmes :** Propose des situations **concrètes et plausibles**, des **études de cas très simplifiées**, ou des **ensembles de données**, TOUJOURS **strictement inspirés ou conformes** aux exemples, contextes ou types de données présents dans le PDF.
                                 * **Formulation des Questions d'Application :**
                                     * "Face à [Scénario basé sur le PDF], quelle serait l'approche prioritaire en utilisant les principes de [Concept du PDF] ?"
@@ -739,7 +739,7 @@ def create3():
                     exclusivement** la compréhension et la capacité d'application du contenu du PDF fourni. Tu ne dois utiliser **AUCUNE autre information ou connaissance**. 
                     La **fidélité absolue** au document source et la **pertinence pédagogique** des questions et des distracteurs (basés uniquement sur le PDF) sont tes priorités 
                     absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté.
-                    **OBLIGATION FORMELLE:** Au moins 40% des questions générées DOIVENT être des questions d'application/raisonnement 
+                    **OBLIGATION FORMELLE:** Au moins 20% (MAX 35%) des questions générées DOIVENT être des questions d'application/raisonnement 
                     avec des mini-scénarios concrets. Tu dois alterner systématiquement entre questions de connaissance et questions d'application.
                     N'inclus surtout pas dans tes questions avec "Selon le PDF..." ou "D'après le document...".
                 """),
@@ -1222,7 +1222,7 @@ def generate_quizz(quizz_id):
                             * **Analyse de Cause/Effet :** Identifier les liens de causalité expliqués dans le PDF.
                             * **Application de Procédure/Méthode :** Suivre les étapes d'un processus décrit dans le PDF.
                             * **Calcul/Interprétation :** Utiliser une formule ou interpréter des données/graphiques présentés dans le PDF.
-                        * **FOCUS MAJEUR - Application & Raisonnement (Vise 40-50% du quiz) :** Ces questions doivent exiger **plus qu'une simple récupération d'information**. Elles doivent tester la capacité à **utiliser activement, combiner, et inférer** à partir des connaissances du PDF.
+                        * **FOCUS MAJEUR - Application & Raisonnement (Vise 20-35% du quiz) :** Ces questions doivent exiger **plus qu'une simple récupération d'information**. Elles doivent tester la capacité à **utiliser activement, combiner, et inférer** à partir des connaissances du PDF.
                             * **Crée des Mini-Scénarios ou Problèmes :** Propose des situations **concrètes et plausibles**, des **études de cas très simplifiées**, ou des **ensembles de données**, TOUJOURS **strictement inspirés ou conformes** aux exemples, contextes ou types de données présents dans le PDF.
                             * **Formulation des Questions d'Application :**
                                 * "Face à [Scénario basé sur le PDF], quelle serait l'approche prioritaire en utilisant les principes de [Concept du PDF] ?"
@@ -1333,7 +1333,7 @@ def generate_quizz(quizz_id):
                     exclusivement** la compréhension et la capacité d'application du contenu du PDF fourni. Tu ne dois utiliser **AUCUNE autre information ou connaissance**. 
                     La **fidélité absolue** au document source et la **pertinence pédagogique** des questions et des distracteurs (basés uniquement sur le PDF) sont tes priorités 
                     absolues. Le quiz doit servir d'outil fiable de validation et de renforcement, reflétant uniquement le matériel de cours présenté.
-                    **OBLIGATION FORMELLE:** Au moins 40% des questions générées DOIVENT être des questions d'application/raisonnement 
+                    **OBLIGATION FORMELLE:** Au moins 20% (MAX 35%) des questions générées DOIVENT être des questions d'application/raisonnement 
                     avec des mini-scénarios concrets. Tu dois alterner systématiquement entre questions de connaissance et questions d'application.
                     N'inclus surtout pas dans tes questions avec "Selon le PDF..." ou "D'après le document...".
                 """),
