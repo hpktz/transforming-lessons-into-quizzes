@@ -77,11 +77,12 @@ body {
 /* ===== LAYOUT PRINCIPAL ===== */
 main {
     height: 100%;
+    max-height: 100%;
     background-color: #e9e9e9b8;
     width: 100%;
     display: grid;
     grid-template-columns: 350px 1fr;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 .subtitle {
@@ -365,6 +366,8 @@ main {
 /* ===== CONTENEUR PRINCIPAL ===== */
 .main-container {
     width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
     margin: 0 auto;
     padding: 50px 25px;
     position: relative;
@@ -416,7 +419,6 @@ header .disconnect-button:hover {
     align-items: center;
     gap: var(--spacing-s);
     margin-bottom: var(--spacing-xl);
-    margin-left: -20px;
 }
 
 .path .path-item {
@@ -661,7 +663,7 @@ header .disconnect-button:hover {
 /* Popup de création */
 .create-popup {
     position: fixed;
-    top: 150%;
+    top: 250%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 600px;
@@ -743,7 +745,7 @@ header .disconnect-button:hover {
 /* Popup de création de dossier */
 .create-folder-popup {
     position: fixed;
-    top: 150%;
+    top: 250%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
@@ -824,7 +826,7 @@ header .disconnect-button:hover {
 /* ===== POPUP DE MODIFICATION DE QUIZ ===== */
 .modify-quizz-popup {
     position: fixed;
-    top: 150%;
+    top: 250%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
@@ -880,7 +882,7 @@ header .disconnect-button:hover {
 
 .delete_folder_confirm {
     position: fixed;
-    top: 150%;
+    top: 250%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
@@ -916,7 +918,7 @@ header .disconnect-button:hover {
 
 .modify-folder-popup {
     position: fixed;
-    top: 150%;
+    top: 250%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
