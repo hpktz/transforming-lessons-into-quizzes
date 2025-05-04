@@ -980,11 +980,16 @@ def extract2():
                         description="Liste des questions extraites",
                         items=genai.types.Schema(
                             type=genai.types.Type.OBJECT,
-                            required=["question", "answers", "correct"],
+                            required=["question", "answers", "correct", "explanation", "sources", "type_question"],
                             properties={
                                 "question": genai.types.Schema(
                                     type=genai.types.Type.STRING,
                                     description="Texte de la question",
+                                ),
+                                "type_question": genai.types.Schema(
+                                    type=genai.types.Type.STRING,
+                                    description="Type de question: 'connaissance' ou 'application'",
+                                    enum=["connaissance", "application"]
                                 ),
                                 "answers": genai.types.Schema(
                                     type=genai.types.Type.ARRAY,
@@ -1111,10 +1116,6 @@ def extract2():
         
         with open(os.path.join(app.root_path, 'static', 'folder.json'), 'w') as folder_file:
             json.dump(folder_data, folder_file, indent=4)
-            
-        # Supprimer les données de session
-        del session['course_name']
-        del session['course_level']
         
         folder_id = session['folder_id']
         del session['folder_id']
